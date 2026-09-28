@@ -74,7 +74,9 @@ export function CursorFlow() {
       style={{ maskImage: mask, WebkitMaskImage: mask }}
       className="pointer-events-none fixed inset-0 -z-40 [filter:brightness(1.7)_saturate(1.15)]"
     >
-      <ShaderBackdrop vignette={false} paused={!pastHero} />
+      {/* A soft, masked, full-screen light: it gains nothing from device
+          resolution, so it keeps the old desktop scale. */}
+      <ShaderBackdrop vignette={false} paused={!pastHero} cssScale={0.36} />
     </motion.div>
   );
 }

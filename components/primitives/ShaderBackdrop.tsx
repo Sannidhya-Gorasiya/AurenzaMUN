@@ -7,9 +7,16 @@ import { perfTier } from "@/lib/device";
 /* Domain-warped fbm: slow gold light drifting through navy fog, leaning a
    little toward the pointer. Dark in the lower left, where the hero type
    sits, so the headline always reads. Needs highp: desktop GPUs run
-   mediump at 32 bits anyway, but phone GPUs run it at 16, where the hash's
-   sin(dot(...)) arguments overflow and the flow collapses to a flat fill. */
-const FRAG = (octaves: number) => `
+   mediump at 32 bits anyway, but phone GPUs run it at 16, where the lattice
+   coordinates lose precision and the flow collapses to a flat fill.
+
+   The hash and the octave counts set the look of the flow: changing either
+   changes its shapes and how busy it reads, not just its cost. With
+   derivatives, the thin gold contour
+   widens by one pixel's worth of `f` so it never stair-steps, and a faint
+   dither breaks up the banding 8-bit output leaves in the dark gradients. */
+const FRAG = (octaves: number, derivatives: boolean) => `
+${derivatives ? "#extension GL_OES_standard_derivatives : enable" : ""}
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -50,10 +57,12 @@ void main() {
 
   vec3 col = mix(ink, navy, smoothstep(0.25, 0.85, f));
   col = mix(col, gold * 0.85, smoothstep(0.58, 1.0, f * f * 1.55 + r.x * 0.22) * 0.7);
-  col += gold * smoothstep(0.018, 0.0, abs(f - 0.64)) * 0.22;
+  float aa = ${derivatives ? "fwidth(f)" : "0.0"};
+  col += gold * smoothstep(0.018 + aa, 0.0, abs(f - 0.64)) * 0.22;
 
   float lift = smoothstep(-0.1, 1.0, uv.y * 0.75 + uv.x * 0.55);
   col *= mix(mix(1.0, 0.28, uVignette), 1.0, lift);
+  col += (hash(gl_FragCoord.xy) - 0.5) / 255.0;
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -71,35 +80,49 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   return s;
 }
 
-/* What each device tier can afford. The flow drifts slowly enough that 30
-   or even 24 frames a second reads the same as 60, and the finest octave is
-   below what a low-resolution buffer can show anyway. Desktops are not
-   exempt: each pixel costs five fbm calls, and at half a 1440p screen that
-   saturated laptop GPUs, so every tier also caps its buffer at `maxPixels`
-   however large the screen is. Phones drop to three octaves, which pays for
-   the highp maths they need. */
+/* What each device tier can afford. Every tier starts at full device
+   resolution. The flow drifts slowly enough that 30 or even 24 frames a
+   second reads the same as 60, so it never draws faster than that. Phones
+   draw one octave fewer, the detail they have always shown. `floor` is the
+   least the adaptive step-down (below) may fall to, in CSS pixels. */
 const QUALITY = {
-  high: { scale: 0.36, octaves: 4, fps: 30, maxPixels: 320_000 },
-  mid: { scale: 0.34, octaves: 3, fps: 30, maxPixels: 200_000 },
-  low: { scale: 0.25, octaves: 3, fps: 24, maxPixels: 120_000 },
+  high: { octaves: 4, fps: 30, floor: 1 },
+  mid: { octaves: 3, fps: 30, floor: 1 },
+  low: { octaves: 3, fps: 24, floor: 0.75 },
 } as const;
 
+/* Adaptive resolution: drawn frames are timed over windows of this length.
+   If two windows in a row run this much slower than the tier's rate, the
+   GPU is not keeping up, so the buffer shrinks by `STEP` (never below the
+   tier's floor, and never back up, so it cannot oscillate). The first
+   window is skipped: it overlaps page load and shader compilation. */
+const WINDOW_MS = 2000;
+const SLOW = 1.35;
+const STEP = 0.85;
+
+/* Fixed-scale mode (`cssScale`) caps its buffer at this many pixels. */
+const CSS_SCALE_MAX_PIXELS = 320_000;
+
 /**
- * Hand-written WebGL "paint flow" behind the hero. Renders at reduced
- * resolution (it is soft by nature) and frame rate on phones, stops when
- * off screen or the tab is hidden, and paints a single still frame under
- * reduced motion. No WebGL: the CSS gradient behind it shows instead.
+ * Hand-written WebGL "paint flow" behind the hero. Renders at device
+ * resolution, stepping down only if the GPU cannot hold the frame rate;
+ * stops when off screen or the tab is hidden, and paints a single still
+ * frame under reduced motion. No WebGL: the CSS gradient behind it shows.
  */
 export function ShaderBackdrop({
   className = "",
   vignette = true,
   paused = false,
+  cssScale,
 }: {
   className?: string;
   /** Darken the lower left, where the hero type sits. */
   vignette?: boolean;
   /** Stop rendering, e.g. while the layer is faded out. */
   paused?: boolean;
+  /** Draw at this fraction of CSS pixels instead of device resolution, for
+      layers too soft to need it (the cursor light). */
+  cssScale?: number;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const reduce = useReducedMotion();
@@ -125,9 +148,10 @@ export function ShaderBackdrop({
     if (!gl) return;
 
     const quality = QUALITY[perfTier()];
+    const derivatives = !!gl.getExtension("OES_standard_derivatives");
     const prog = gl.createProgram()!;
     gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
-    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG(quality.octaves)));
+    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG(quality.octaves, derivatives)));
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
     gl.useProgram(prog);
@@ -143,25 +167,46 @@ export function ShaderBackdrop({
     const uTime = gl.getUniformLocation(prog, "uTime");
     const uMouse = gl.getUniformLocation(prog, "uMouse");
     gl.uniform1f(gl.getUniformLocation(prog, "uVignette"), vignette ? 1 : 0);
+    const [maxW, maxH] = gl.getParameter(gl.MAX_VIEWPORT_DIMS) as Int32Array;
 
-    /* Reduced resolution: the image is all soft gradients, so the saving
-       is free and it keeps phones cool. The size is read from a
-       ResizeObserver rather than clientWidth on every frame, which forced
-       a layout read each frame. */
+    /* The size is read from a ResizeObserver rather than on every frame,
+       which forced a layout read each frame. Where the browser reports the
+       exact device-pixel box, the buffer matches the screen's pixels one to
+       one; elsewhere it is the CSS box times devicePixelRatio. */
     let cssW = canvas.clientWidth;
     let cssH = canvas.clientHeight;
+    let devW = 0;
+    let devH = 0;
     const sizer = new ResizeObserver(([entry]) => {
       cssW = entry.contentRect.width;
       cssH = entry.contentRect.height;
+      const box = entry.devicePixelContentBoxSize?.[0];
+      devW = box ? box.inlineSize : 0;
+      devH = box ? box.blockSize : 0;
     });
-    sizer.observe(canvas);
+    try {
+      sizer.observe(canvas, { box: "device-pixel-content-box" });
+    } catch {
+      sizer.observe(canvas);
+    }
+
+    /* Fraction of device resolution drawn; only the step-down lowers it. */
+    let res = 1;
     function resize() {
       if (!canvas || !gl) return;
-      const area = cssW * cssH * quality.scale * quality.scale;
-      const scale =
-        area > quality.maxPixels ? quality.scale * Math.sqrt(quality.maxPixels / area) : quality.scale;
-      const w = Math.max(1, Math.floor(cssW * scale));
-      const h = Math.max(1, Math.floor(cssH * scale));
+      let w: number;
+      let h: number;
+      if (cssScale) {
+        const s = Math.min(cssScale, Math.sqrt(CSS_SCALE_MAX_PIXELS / Math.max(1, cssW * cssH)));
+        w = cssW * s;
+        h = cssH * s;
+      } else {
+        const dpr = window.devicePixelRatio || 1;
+        w = (devW || cssW * dpr) * res;
+        h = (devH || cssH * dpr) * res;
+      }
+      w = Math.min(maxW, Math.max(1, Math.round(w)));
+      h = Math.min(maxH, Math.max(1, Math.round(h)));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
@@ -193,18 +238,46 @@ export function ShaderBackdrop({
 
     const interval = 1000 / quality.fps;
     let last = 0;
+    let frames = 0;
+    let windowStart = 0;
+    let warmedUp = false;
+    let slowWindows = 0;
+
+    function measure(now: number) {
+      if (cssScale) return;
+      if (frames++ === 0) {
+        windowStart = now;
+        return;
+      }
+      if (now - windowStart < WINDOW_MS) return;
+      const avg = (now - windowStart) / (frames - 1);
+      frames = 0;
+      if (!warmedUp) {
+        warmedUp = true;
+        return;
+      }
+      slowWindows = avg > interval * SLOW ? slowWindows + 1 : 0;
+      if (slowWindows < 2) return;
+      slowWindows = 0;
+      const floor = quality.floor / (window.devicePixelRatio || 1);
+      res = Math.max(Math.min(1, floor), res * STEP);
+    }
+
     function loop(now: number) {
       /* Skip frames to hold the tier's rate; a small tolerance keeps a
          60Hz display landing on every second frame for 30fps. */
       if (now - last >= interval - 2) {
         last = now;
         draw(now);
+        measure(now);
       }
       if (running()) raf = requestAnimationFrame(loop);
     }
 
     function wake() {
       cancelAnimationFrame(raf);
+      /* A pause is not a slow frame: start a fresh timing window. */
+      frames = 0;
       if (running()) raf = requestAnimationFrame(loop);
     }
     wakeRef.current = wake;
@@ -235,7 +308,7 @@ export function ShaderBackdrop({
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("pointermove", onPointer);
     };
-  }, [reduce, vignette]);
+  }, [reduce, vignette, cssScale]);
 
   return (
     <canvas
