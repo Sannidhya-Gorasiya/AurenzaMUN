@@ -44,7 +44,12 @@ float fbm(vec2 p) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
+  /* The flow is composed for a 16:10 frame, 1.6 units wide, with its gold
+     light drifting through the upper right. Frames narrower than that
+     (phones) keep the desktop's scale but are anchored to its right edge,
+     so they show that corner rather than a dark strip from the middle. */
   vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+  p.x += max(0.0, 0.8 - 0.5 * uRes.x / uRes.y);
   float t = uTime * 0.045;
 
   vec2 q = vec2(fbm(p * 1.3 + t), fbm(p * 1.3 - t + 4.2));
@@ -83,15 +88,15 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 
 /* What each device tier can afford. The flow drifts slowly enough that 30
    or even 24 frames a second reads the same as 60, so it never draws faster
-   than that. Phones draw one octave fewer, the detail they have always
-   shown. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
+   than that. Every tier draws the desktop's four octaves, so phones show
+   the same detail; the adaptive step-down covers the cost. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
    1.5 gets one buffer pixel per two screen pixels, finer than the eye can
    pick out once smoothed, for a quarter of the cost of the full 3x. `floor`
    is the least the adaptive step-down (below) may fall to, in CSS pixels. */
 const QUALITY = {
   high: { octaves: 4, fps: 30, density: 2, floor: 1 },
-  mid: { octaves: 3, fps: 30, density: 1.5, floor: 1 },
-  low: { octaves: 3, fps: 24, density: 1.25, floor: 0.75 },
+  mid: { octaves: 4, fps: 30, density: 1.5, floor: 1 },
+  low: { octaves: 4, fps: 24, density: 1.25, floor: 0.75 },
 } as const;
 
 /* Adaptive resolution: drawn frames are timed over windows of this length.
