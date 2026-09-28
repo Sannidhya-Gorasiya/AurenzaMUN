@@ -15,8 +15,9 @@ import { isTouchPrimary, perfTier, prefersSaveData, useScrollTimelines } from "@
  *   1. Once the page has loaded and gone idle, the clip is sampled into a
  *      single vertical strip of small frames (a sprite), with the gold tint
  *      and the old 10% screen baked into the pixels. The video is then
- *      released. The browser upscales the small frames, which is what
- *      gives the soft, blurred look.
+ *      released. Each frame is blurred by about a pixel as it is baked, so
+ *      when the browser upscales the small frames they stay soft rather
+ *      than turning blocky.
  *   2. Two copies of the strip sit in a window the size of one frame. A
  *      CSS scroll-driven animation (`backdrop-a` / `backdrop-b` in
  *      globals.css) steps copy A to the frame at the scroll position and
@@ -52,6 +53,32 @@ const LIGHT = [
 ].join(", ");
 
 type Strip = { frames: number; w: number; h: number; aspect: number };
+
+/**
+ * Soften a baked frame in place: two passes of a 3-tap box blur each way,
+ * close to a Gaussian of about one baked pixel (SOFTNESS CSS px, the old
+ * 8px blur). The browser stretches each baked pixel over a dozen or more
+ * screen pixels on a phone, and a stretched hard edge reads as a staircase
+ * of blocks; with no detail finer than a pixel left, the stretch is smooth.
+ */
+function blur(src: Float32Array, tmp: Float32Array, w: number, h: number) {
+  for (let pass = 0; pass < 2; pass++) {
+    for (let y = 0; y < h; y++) {
+      const row = y * w;
+      for (let x = 0; x < w; x++) {
+        const l = src[row + Math.max(0, x - 1)];
+        const r = src[row + Math.min(w - 1, x + 1)];
+        tmp[row + x] = (l + src[row + x] + r) / 3;
+      }
+    }
+    for (let y = 0; y < h; y++) {
+      const up = Math.max(0, y - 1) * w;
+      const down = Math.min(h - 1, y + 1) * w;
+      const row = y * w;
+      for (let x = 0; x < w; x++) src[row + x] = (tmp[up + x] + tmp[row + x] + tmp[down + x]) / 3;
+    }
+  }
+}
 
 /** Resolves once the seek lands, or after a timeout so one bad seek never stalls the bake. */
 function seek(v: HTMLVideoElement, t: number) {
@@ -180,6 +207,8 @@ export function SiteBackdrop() {
       frame.height = h;
       const fctx = frame.getContext("2d", { willReadFrequently: true })!;
       fctx.imageSmoothingQuality = "high";
+      const lum = new Float32Array(w * h);
+      const tmp = new Float32Array(w * h);
 
       const span = Math.max(0, v.duration - 0.05);
       for (let i = 0; i < count; i++) {
@@ -191,11 +220,16 @@ export function SiteBackdrop() {
         mctx.drawImage(v, 0, 0, mid.width, mid.height);
         fctx.drawImage(mid, 0, 0, w, h);
 
-        /* grayscale -> gold -> screened at 10% over the page background */
+        /* grayscale -> blurred -> gold -> screened at 10% over the page
+           background */
         const img = fctx.getImageData(0, 0, w, h);
         const d = img.data;
-        for (let p = 0; p < d.length; p += 4) {
-          const l = Math.min(1, ((0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) / 255) * 1.1) * 0.85;
+        for (let p = 0, k = 0; p < d.length; p += 4, k++) {
+          lum[k] = Math.min(1, ((0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) / 255) * 1.1) * 0.85;
+        }
+        blur(lum, tmp, w, h);
+        for (let p = 0, k = 0; p < d.length; p += 4, k++) {
+          const l = lum[k];
           for (let c = 0; c < 3; c++) {
             const bg = BG[c] / 255;
             d[p + c] = Math.round((bg + STRENGTH * (GOLD[c] / 255) * l * (1 - bg)) * 255);

@@ -80,33 +80,41 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   return s;
 }
 
-/* What each device tier can afford. Every tier starts at full device
-   resolution. The flow drifts slowly enough that 30 or even 24 frames a
-   second reads the same as 60, so it never draws faster than that. Phones
-   draw one octave fewer, the detail they have always shown. `floor` is the
-   least the adaptive step-down (below) may fall to, in CSS pixels. */
+/* What each device tier can afford. The flow drifts slowly enough that 30
+   or even 24 frames a second reads the same as 60, so it never draws faster
+   than that. Phones draw one octave fewer, the detail they have always
+   shown. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
+   1.5 gets one buffer pixel per two screen pixels, finer than the eye can
+   pick out once smoothed, for a quarter of the cost of the full 3x. `floor`
+   is the least the adaptive step-down (below) may fall to, in CSS pixels. */
 const QUALITY = {
-  high: { octaves: 4, fps: 30, floor: 1 },
-  mid: { octaves: 3, fps: 30, floor: 1 },
-  low: { octaves: 3, fps: 24, floor: 0.75 },
+  high: { octaves: 4, fps: 30, density: 2, floor: 1 },
+  mid: { octaves: 3, fps: 30, density: 1.5, floor: 1 },
+  low: { octaves: 3, fps: 24, density: 1.25, floor: 0.75 },
 } as const;
 
 /* Adaptive resolution: drawn frames are timed over windows of this length.
-   If two windows in a row run this much slower than the tier's rate, the
-   GPU is not keeping up, so the buffer shrinks by `STEP` (never below the
-   tier's floor, and never back up, so it cannot oscillate). The first
-   window is skipped: it overlaps page load and shader compilation. */
-const WINDOW_MS = 2000;
-const SLOW = 1.35;
-const STEP = 0.85;
+   If a window runs this much slower than the tier's rate, the GPU is not
+   keeping up, so the buffer shrinks by `STEP` (never below the tier's
+   floor, and never back up, so it cannot oscillate). The first window is
+   skipped: it overlaps page load and shader compilation. */
+const WINDOW_MS = 1000;
+const SLOW = 1.3;
+const STEP = 0.8;
+
+/* Stop drawing once this little of the flow is left on screen: by then the
+   hero is scrolling away and fading, and the GPU is better spent on the
+   scroll. */
+const MIN_VISIBLE = 0.3;
 
 /* Fixed-scale mode (`cssScale`) caps its buffer at this many pixels. */
 const CSS_SCALE_MAX_PIXELS = 320_000;
 
 /**
  * Hand-written WebGL "paint flow" behind the hero. Renders at device
- * resolution, stepping down only if the GPU cannot hold the frame rate;
- * stops when off screen or the tab is hidden, and paints a single still
+ * resolution up to the tier's density cap, stepping down only if the GPU
+ * cannot hold the frame rate; stops once mostly off screen or when the tab
+ * is hidden, and paints a single still
  * frame under reduced motion. No WebGL: the CSS gradient behind it shows.
  */
 export function ShaderBackdrop({
@@ -190,8 +198,10 @@ export function ShaderBackdrop({
       sizer.observe(canvas);
     }
 
-    /* Fraction of device resolution drawn; only the step-down lowers it. */
-    let res = 1;
+    /* Fraction of device resolution drawn: the tier's density cap to begin
+       with, and only the step-down lowers it. */
+    const startDpr = window.devicePixelRatio || 1;
+    let res = Math.min(1, quality.density / startDpr);
     function resize() {
       if (!canvas || !gl) return;
       let w: number;
@@ -241,7 +251,6 @@ export function ShaderBackdrop({
     let frames = 0;
     let windowStart = 0;
     let warmedUp = false;
-    let slowWindows = 0;
 
     function measure(now: number) {
       if (cssScale) return;
@@ -256,9 +265,7 @@ export function ShaderBackdrop({
         warmedUp = true;
         return;
       }
-      slowWindows = avg > interval * SLOW ? slowWindows + 1 : 0;
-      if (slowWindows < 2) return;
-      slowWindows = 0;
+      if (avg <= interval * SLOW) return;
       const floor = quality.floor / (window.devicePixelRatio || 1);
       res = Math.max(Math.min(1, floor), res * STEP);
     }
@@ -292,10 +299,18 @@ export function ShaderBackdrop({
       };
     }
 
-    const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      wake();
-    });
+    /* Measured against the canvas and against the screen, so a hero taller
+       than the screen still counts as visible while it fills it. */
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible =
+          entry.isIntersecting &&
+          (entry.intersectionRatio >= MIN_VISIBLE ||
+            entry.intersectionRect.height >= window.innerHeight * MIN_VISIBLE);
+        wake();
+      },
+      { threshold: [0, MIN_VISIBLE, 0.6, 1] },
+    );
     io.observe(canvas);
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("pointermove", onPointer, { passive: true });
