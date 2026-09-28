@@ -26,6 +26,7 @@ uniform vec2 uRes;
 uniform float uTime;
 uniform vec2 uMouse;
 uniform float uVignette;
+uniform float uGold;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -56,9 +57,9 @@ void main() {
   vec3 gold = vec3(0.898, 0.753, 0.388);
 
   vec3 col = mix(ink, navy, smoothstep(0.25, 0.85, f));
-  col = mix(col, gold * 0.85, smoothstep(0.58, 1.0, f * f * 1.55 + r.x * 0.22) * 0.7);
+  col = mix(col, gold * 0.85, smoothstep(0.58, 1.0, f * f * 1.55 + r.x * 0.22) * 0.7 * uGold);
   float aa = ${derivatives ? "fwidth(f)" : "0.0"};
-  col += gold * smoothstep(0.018 + aa, 0.0, abs(f - 0.64)) * 0.22;
+  col += gold * smoothstep(0.018 + aa, 0.0, abs(f - 0.64)) * 0.22 * uGold;
 
   float lift = smoothstep(-0.1, 1.0, uv.y * 0.75 + uv.x * 0.55);
   col *= mix(mix(1.0, 0.28, uVignette), 1.0, lift);
@@ -120,12 +121,15 @@ const CSS_SCALE_MAX_PIXELS = 320_000;
 export function ShaderBackdrop({
   className = "",
   vignette = true,
+  gold = true,
   paused = false,
   cssScale,
 }: {
   className?: string;
   /** Darken the lower left, where the hero type sits. */
   vignette?: boolean;
+  /** Draw the gold light; without it only the navy fog is left. */
+  gold?: boolean;
   /** Stop rendering, e.g. while the layer is faded out. */
   paused?: boolean;
   /** Draw at this fraction of CSS pixels instead of device resolution, for
@@ -175,6 +179,7 @@ export function ShaderBackdrop({
     const uTime = gl.getUniformLocation(prog, "uTime");
     const uMouse = gl.getUniformLocation(prog, "uMouse");
     gl.uniform1f(gl.getUniformLocation(prog, "uVignette"), vignette ? 1 : 0);
+    gl.uniform1f(gl.getUniformLocation(prog, "uGold"), gold ? 1 : 0);
     const [maxW, maxH] = gl.getParameter(gl.MAX_VIEWPORT_DIMS) as Int32Array;
 
     /* The size is read from a ResizeObserver rather than on every frame,
@@ -323,7 +328,7 @@ export function ShaderBackdrop({
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("pointermove", onPointer);
     };
-  }, [reduce, vignette, cssScale]);
+  }, [reduce, vignette, gold, cssScale]);
 
   return (
     <canvas
