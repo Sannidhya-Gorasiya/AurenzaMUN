@@ -123,10 +123,10 @@ export function SiteHeader() {
         <div
           className={`relative mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full pl-2 pr-2 transition-[background-color,border-color,box-shadow] duration-500 sm:h-16 sm:pl-3 ${
             scrolled || open
-              ? /* The live blur re-blurs everything under the capsule on
-                   every scroll frame, which phones cannot keep up with, so
-                   touch screens get a denser fill instead. */
-                "border border-hairline bg-background/90 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] [@media(hover:hover)]:bg-background/75 [@media(hover:hover)]:backdrop-blur-xl"
+              ? /* A dense fill, not a live blur: over the hero the blur had
+                   to re-blur the animating shader under the capsule on
+                   every frame, which made even desktops stutter. */
+                "border border-hairline bg-background/90 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)]"
               : "border border-transparent"
           }`}
         >

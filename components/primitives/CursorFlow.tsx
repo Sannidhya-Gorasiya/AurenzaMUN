@@ -41,10 +41,18 @@ export function CursorFlow() {
     if (!enabled) return;
     const hero = document.getElementById("top");
     if (!hero) return;
-    const io = new IntersectionObserver(([entry]) => setPastHero(!entry.isIntersecting));
+    /* While the hero is on screen the layer is invisible, so the cursor is
+       not fed to the springs: otherwise every mouse move re-rasterised a
+       full-screen mask nobody could see, on top of the hero's own shader. */
+    let active = false;
+    const io = new IntersectionObserver(([entry]) => {
+      active = !entry.isIntersecting;
+      setPastHero(active);
+    });
     io.observe(hero);
 
     function onMove(e: PointerEvent) {
+      if (!active) return;
       x.set(e.clientX);
       y.set(e.clientY);
     }

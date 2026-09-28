@@ -6,9 +6,15 @@ import { perfTier } from "@/lib/device";
 
 /* Domain-warped fbm: slow gold light drifting through navy fog, leaning a
    little toward the pointer. Dark in the lower left, where the hero type
-   sits, so the headline always reads. */
+   sits, so the headline always reads. Needs highp: desktop GPUs run
+   mediump at 32 bits anyway, but phone GPUs run it at 16, where the hash's
+   sin(dot(...)) arguments overflow and the flow collapses to a flat fill. */
 const FRAG = (octaves: number) => `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 uniform vec2 uRes;
 uniform float uTime;
 uniform vec2 uMouse;
@@ -67,12 +73,20 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 
 /* What each device tier can afford. The flow drifts slowly enough that 30
    or even 24 frames a second reads the same as 60, and the finest octave is
-   below what a low-resolution buffer can show anyway. */
+   below what a low-resolution buffer can show anyway. Desktops are not
+   exempt: each pixel costs five fbm calls, and at half a 1440p screen that
+   saturated laptop GPUs, so every tier also caps its buffer at `maxPixels`
+   however large the screen is. Phones drop to three octaves, which pays for
+   the highp maths they need, and hold still while the page is scrolling so
+   the GPU goes to the scroll first. */
 const QUALITY = {
-  high: { scale: 0.5, octaves: 5, fps: 60 },
-  mid: { scale: 0.34, octaves: 4, fps: 30 },
-  low: { scale: 0.25, octaves: 4, fps: 24 },
+  high: { scale: 0.36, octaves: 4, fps: 30, maxPixels: 320_000, yieldToScroll: false },
+  mid: { scale: 0.34, octaves: 3, fps: 30, maxPixels: 200_000, yieldToScroll: true },
+  low: { scale: 0.25, octaves: 3, fps: 24, maxPixels: 120_000, yieldToScroll: true },
 } as const;
+
+/* How long after the last scroll event the flow stays still. */
+const SCROLL_IDLE_MS = 150;
 
 /**
  * Hand-written WebGL "paint flow" behind the hero. Renders at reduced
@@ -147,8 +161,11 @@ export function ShaderBackdrop({
     sizer.observe(canvas);
     function resize() {
       if (!canvas || !gl) return;
-      const w = Math.max(1, Math.floor(cssW * quality.scale));
-      const h = Math.max(1, Math.floor(cssH * quality.scale));
+      const area = cssW * cssH * quality.scale * quality.scale;
+      const scale =
+        area > quality.maxPixels ? quality.scale * Math.sqrt(quality.maxPixels / area) : quality.scale;
+      const w = Math.max(1, Math.floor(cssW * scale));
+      const h = Math.max(1, Math.floor(cssH * scale));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
@@ -180,10 +197,15 @@ export function ShaderBackdrop({
 
     const interval = 1000 / quality.fps;
     let last = 0;
+    let lastScroll = -Infinity;
+    function onScroll() {
+      lastScroll = performance.now();
+    }
     function loop(now: number) {
       /* Skip frames to hold the tier's rate; a small tolerance keeps a
-         60Hz display landing on every second frame for 30fps. */
-      if (now - last >= interval - 2) {
+         60Hz display landing on every second frame for 30fps. The drift is
+         slow enough that pausing it mid-scroll never reads as a jump. */
+      if (now - last >= interval - 2 && now - lastScroll >= SCROLL_IDLE_MS) {
         last = now;
         draw(now);
       }
@@ -213,6 +235,7 @@ export function ShaderBackdrop({
     io.observe(canvas);
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("pointermove", onPointer, { passive: true });
+    if (quality.yieldToScroll) window.addEventListener("scroll", onScroll, { passive: true });
     raf = requestAnimationFrame(loop);
 
     return () => {
@@ -221,6 +244,7 @@ export function ShaderBackdrop({
       sizer.disconnect();
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("scroll", onScroll);
     };
   }, [reduce, vignette]);
 
