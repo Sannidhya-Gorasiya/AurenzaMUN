@@ -125,7 +125,7 @@ export const committees = {
             "Agenda A: discussion and deliberation on the constitutional validity of anti-conversion laws in India.\n\nAgenda B: discussion upon Article 19(1)(a), freedom of speech and expression, with special emphasis on press freedom in India.",
           description:
             "The All India Political Parties Meet puts leaders from across the political spectrum in one room. Delegates argue as sitting politicians, defending a party line in public while searching for a consensus the country can actually live with.",
-          chair: "Atharva Devedkar",
+          chair: "Atharva Devadkar",
           focus: [
             "Argue from a real party position",
             "Build cross-party consensus on contested reform",
@@ -543,25 +543,20 @@ export const secretariat = {
         { name: "Diya Joshi", role: "HEAD OF BRANDING & SUPPLIES", photo: "/team/diya-joshi.webp" },
         { name: "Daveena Hada", role: "HEAD OF DIGITAL MEDIA", photo: "/team/daveena-hada.webp" },
         { name: "Zeal Joshi", role: "HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/zeal-joshi.webp" },
-        { name: "Atharva Devedkar", role: "HEAD OF DELEGATE AFFAIRS", photo: "/team/atharva-devedkar.webp" },
+        { name: "Atharva Devadkar", role: "HEAD OF DELEGATE AFFAIRS", photo: "/team/atharva-devedkar.webp" },
       ],
     },
     {
       label: "SUB-HEADS",
-      /* Grouped by department, alphabetically, and alphabetically by name
-         within a department — so the two who share one land side by side and
-         each line names the department its head carries above, letting the
-         pair read together. At three across the creative pair opens a row
-         and the hospitality pair lands within one.
+      /* Grouped by department, alphabetically, so each line names the
+         department its head carries above.
          No `panelRows`: the tier is announced, so the grid ends at the last
          name rather than reserving a slot nobody is going to fill. */
       members: [
-        { name: "Mahi Salla", role: "SUB-HEAD OF CREATIVE & FINE ARTS", photo: "/team/mahi-salla.webp" },
         { name: "Risha Mehta", role: "SUB-HEAD OF CREATIVE & FINE ARTS", photo: "/team/risha-mehta.webp" },
         { name: "Shreya Sheth", role: "SUB-HEAD OF DIGITAL MEDIA", photo: "/team/shreya-sheth.webp" },
         { name: "Tiksha Pant", role: "SUB-HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/tiksha-pant.webp" },
         { name: "Kiara Parmar", role: "SUB-HEAD OF HOSPITALITY", photo: "/team/kiara-parmar.webp" },
-        { name: "Saanvi Bhambid", role: "SUB-HEAD OF HOSPITALITY", photo: "/team/saanvi-bhambid.webp" },
         { name: "Hajel Rathod", role: "SUB-HEAD OF MARKETING & SPONSORS", photo: "/team/hazel-rathod.webp" },
         { name: "Mohit Fatnani", role: "SUB-HEAD OF PHOTOGRAPHY", photo: "/team/mohit-fatnani.webp" },
         { name: "Diyaan Doshi", role: "SUB-HEAD OF SECURITY", photo: "/team/diyaan-doshi.webp" },

@@ -11,7 +11,9 @@ import { perfTier } from "@/lib/device";
    coordinates lose precision and the flow collapses to a flat fill.
 
    The hash and the octave counts set the look of the flow: changing either
-   changes its shapes and how busy it reads, not just its cost. With
+   changes its shapes and how busy it reads, not just its cost. The hash is
+   arithmetic only: the usual fract(sin(x) * 43758.5) depends on how each GPU
+   rounds sin of large arguments, so every phone drew a different flow. With
    derivatives, the thin gold contour
    widens by one pixel's worth of `f` so it never stair-steps, and a faint
    dither breaks up the banding 8-bit output leaves in the dark gradients. */
@@ -28,7 +30,11 @@ uniform vec2 uMouse;
 uniform float uVignette;
 uniform float uGold;
 
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float hash(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
 float noise(vec2 p) {
   vec2 i = floor(p), f = fract(p);
   vec2 u = f * f * (3.0 - 2.0 * f);
@@ -44,7 +50,9 @@ float fbm(vec2 p) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+  /* Scaled by the shorter side, so a portrait phone frames the flow the way
+     a landscape desktop does instead of showing a narrow slice of it. */
+  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / min(uRes.x, uRes.y);
   float t = uTime * 0.045;
 
   vec2 q = vec2(fbm(p * 1.3 + t), fbm(p * 1.3 - t + 4.2));
@@ -83,15 +91,15 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 
 /* What each device tier can afford. The flow drifts slowly enough that 30
    or even 24 frames a second reads the same as 60, so it never draws faster
-   than that. Phones draw one octave fewer, the detail they have always
-   shown. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
+   than that. Every tier draws the same four octaves, so phones show the
+   flow the desktop does; the adaptive step-down covers the cost. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
    1.5 gets one buffer pixel per two screen pixels, finer than the eye can
    pick out once smoothed, for a quarter of the cost of the full 3x. `floor`
    is the least the adaptive step-down (below) may fall to, in CSS pixels. */
 const QUALITY = {
   high: { octaves: 4, fps: 30, density: 2, floor: 1 },
-  mid: { octaves: 3, fps: 30, density: 1.5, floor: 1 },
-  low: { octaves: 3, fps: 24, density: 1.25, floor: 0.75 },
+  mid: { octaves: 4, fps: 30, density: 1.5, floor: 1 },
+  low: { octaves: 4, fps: 24, density: 1.25, floor: 0.75 },
 } as const;
 
 /* Adaptive resolution: drawn frames are timed over windows of this length.
