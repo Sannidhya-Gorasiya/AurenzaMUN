@@ -77,16 +77,14 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
    exempt: each pixel costs five fbm calls, and at half a 1440p screen that
    saturated laptop GPUs, so every tier also caps its buffer at `maxPixels`
    however large the screen is. Phones drop to three octaves, which pays for
-   the highp maths they need, and hold still while the page is scrolling so
-   the GPU goes to the scroll first. */
+   the highp maths they need and for a buffer fine enough not to look
+   pixelated on a dense screen: a phone's hero is small, so even at these
+   scales it stays well under the pixel caps. */
 const QUALITY = {
-  high: { scale: 0.36, octaves: 4, fps: 30, maxPixels: 320_000, yieldToScroll: false },
-  mid: { scale: 0.34, octaves: 3, fps: 30, maxPixels: 200_000, yieldToScroll: true },
-  low: { scale: 0.25, octaves: 3, fps: 24, maxPixels: 120_000, yieldToScroll: true },
+  high: { scale: 0.36, octaves: 4, fps: 30, maxPixels: 320_000 },
+  mid: { scale: 0.6, octaves: 3, fps: 30, maxPixels: 200_000 },
+  low: { scale: 0.45, octaves: 3, fps: 24, maxPixels: 120_000 },
 } as const;
-
-/* How long after the last scroll event the flow stays still. */
-const SCROLL_IDLE_MS = 150;
 
 /**
  * Hand-written WebGL "paint flow" behind the hero. Renders at reduced
@@ -197,15 +195,10 @@ export function ShaderBackdrop({
 
     const interval = 1000 / quality.fps;
     let last = 0;
-    let lastScroll = -Infinity;
-    function onScroll() {
-      lastScroll = performance.now();
-    }
     function loop(now: number) {
       /* Skip frames to hold the tier's rate; a small tolerance keeps a
-         60Hz display landing on every second frame for 30fps. The drift is
-         slow enough that pausing it mid-scroll never reads as a jump. */
-      if (now - last >= interval - 2 && now - lastScroll >= SCROLL_IDLE_MS) {
+         60Hz display landing on every second frame for 30fps. */
+      if (now - last >= interval - 2) {
         last = now;
         draw(now);
       }
@@ -235,7 +228,6 @@ export function ShaderBackdrop({
     io.observe(canvas);
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("pointermove", onPointer, { passive: true });
-    if (quality.yieldToScroll) window.addEventListener("scroll", onScroll, { passive: true });
     raf = requestAnimationFrame(loop);
 
     return () => {
@@ -244,7 +236,6 @@ export function ShaderBackdrop({
       sizer.disconnect();
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("pointermove", onPointer);
-      window.removeEventListener("scroll", onScroll);
     };
   }, [reduce, vignette]);
 

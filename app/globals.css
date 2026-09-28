@@ -95,6 +95,22 @@ body {
   overflow-x: clip;
 }
 
+/* Touch screens: nothing is selectable. A tap or a press-and-hold on a
+   button otherwise starts a text selection (and the callout menu) that can
+   spread across the page. The site has no form fields to exempt. */
+@media (pointer: coarse) {
+  *,
+  *::before,
+  *::after {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  ::selection {
+    background: transparent;
+  }
+}
+
 /* Dialog and mobile menu lock the page through lib/scroll.ts. */
 html.scroll-locked,
 html.scroll-locked body {
