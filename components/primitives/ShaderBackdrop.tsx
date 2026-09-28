@@ -8,12 +8,8 @@ import { perfTier } from "@/lib/device";
    little toward the pointer. Dark in the lower left, where the hero type
    sits, so the headline always reads. Needs highp: desktop GPUs run
    mediump at 32 bits anyway, but phone GPUs run it at 16, where the hash's
-   sin(dot(...)) arguments overflow and the flow collapses to a flat fill.
-   With derivatives, the thin gold contour widens by one pixel's worth of
-   `f`, so it stays smooth instead of stair-stepping; a faint dither breaks
-   up the banding 8-bit output leaves in the dark gradients. */
-const FRAG = (octaves: number, derivatives: boolean) => `
-${derivatives ? "#extension GL_OES_standard_derivatives : enable" : ""}
+   sin(dot(...)) arguments overflow and the flow collapses to a flat fill. */
+const FRAG = (octaves: number) => `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -54,12 +50,10 @@ void main() {
 
   vec3 col = mix(ink, navy, smoothstep(0.25, 0.85, f));
   col = mix(col, gold * 0.85, smoothstep(0.58, 1.0, f * f * 1.55 + r.x * 0.22) * 0.7);
-  float aa = ${derivatives ? "fwidth(f)" : "0.0"};
-  col += gold * smoothstep(0.018 + aa, 0.0, abs(f - 0.64)) * 0.22;
+  col += gold * smoothstep(0.018, 0.0, abs(f - 0.64)) * 0.22;
 
   float lift = smoothstep(-0.1, 1.0, uv.y * 0.75 + uv.x * 0.55);
   col *= mix(mix(1.0, 0.28, uVignette), 1.0, lift);
-  col += (hash(gl_FragCoord.xy) - 0.5) / 255.0;
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -83,19 +77,16 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
    exempt: each pixel costs five fbm calls, and at half a 1440p screen that
    saturated laptop GPUs, so every tier also caps its buffer at `maxPixels`
    however large the screen is. Phones drop to three octaves, which pays for
-   the highp maths they need and for a full CSS-pixel buffer, since anything
-   coarser reads as pixelated on a dense screen. A phone's hero is small
-   (about 390 by 700), so that stays inside the caps. */
+   the highp maths they need. */
 const QUALITY = {
   high: { scale: 0.36, octaves: 4, fps: 30, maxPixels: 320_000 },
-  mid: { scale: 1, octaves: 3, fps: 30, maxPixels: 400_000 },
-  low: { scale: 0.75, octaves: 3, fps: 24, maxPixels: 240_000 },
+  mid: { scale: 0.34, octaves: 3, fps: 30, maxPixels: 200_000 },
+  low: { scale: 0.25, octaves: 3, fps: 24, maxPixels: 120_000 },
 } as const;
 
 /**
  * Hand-written WebGL "paint flow" behind the hero. Renders at reduced
- * resolution on desktops (it is soft by nature) and reduced frame rate on
- * phones, stops when
+ * resolution (it is soft by nature) and frame rate on phones, stops when
  * off screen or the tab is hidden, and paints a single still frame under
  * reduced motion. No WebGL: the CSS gradient behind it shows instead.
  */
@@ -134,10 +125,9 @@ export function ShaderBackdrop({
     if (!gl) return;
 
     const quality = QUALITY[perfTier()];
-    const derivatives = !!gl.getExtension("OES_standard_derivatives");
     const prog = gl.createProgram()!;
     gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
-    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG(quality.octaves, derivatives)));
+    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG(quality.octaves)));
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
     gl.useProgram(prog);
