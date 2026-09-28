@@ -552,7 +552,7 @@ export const secretariat = {
          within a department — so the two who share one land side by side and
          each line names the department its head carries above, letting the
          pair read together. At three across the creative pair opens a row
-         and the hospitality and marketing pairs each land within one.
+         and the hospitality pair lands within one.
          No `panelRows`: the tier is announced, so the grid ends at the last
          name rather than reserving a slot nobody is going to fill. */
       members: [
@@ -563,7 +563,6 @@ export const secretariat = {
         { name: "Kiara Parmar", role: "SUB-HEAD OF HOSPITALITY", photo: "/team/kiara-parmar.webp" },
         { name: "Saanvi Bhambid", role: "SUB-HEAD OF HOSPITALITY", photo: "/team/saanvi-bhambid.webp" },
         { name: "Hajel Rathod", role: "SUB-HEAD OF MARKETING & SPONSORS", photo: "/team/hazel-rathod.webp" },
-        { name: "Sai Nanivadekar", role: "SUB-HEAD OF MARKETING & SPONSORS", photo: "/team/sai-nanivadekar.webp" },
         { name: "Mohit Fatnani", role: "SUB-HEAD OF PHOTOGRAPHY", photo: "/team/mohit-fatnani.webp" },
         { name: "Diyaan Doshi", role: "SUB-HEAD OF SECURITY", photo: "/team/diyaan-doshi.webp" },
       ],
