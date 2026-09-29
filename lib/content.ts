@@ -578,14 +578,16 @@ export const resources = {
       tag: "ALL DELEGATES",
       description:
         "Comprehensive guide covering research methodology, position paper writing, and committee preparation strategies for all tracks.",
-      state: "Coming Soon",
+      state: "Available",
+      href: "https://drive.google.com/drive/folders/1NvbE8b78e7qTfNOXRsWkm7dmoSqXZf6R?usp=sharing",
     },
     {
       title: "Rules of Procedure",
       tag: "REQUIRED READING",
       description:
         "The official AurenzaMUN Rules of Procedure document governing all committee sessions, motions, and voting procedures.",
-      state: "Coming Soon",
+      state: "Available",
+      href: "https://drive.google.com/drive/folders/1Ue2A1mTQynOb0khmMqXWDGwb5olciLhR?usp=sharing",
     },
     {
       title: "IP Press Guidelines",

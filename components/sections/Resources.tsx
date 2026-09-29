@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenTextIcon, GavelIcon, NewspaperIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRightIcon, BookOpenTextIcon, GavelIcon, NewspaperIcon } from "@phosphor-icons/react/dist/ssr";
 import { resources } from "@/lib/content";
 import { Pill } from "@/components/primitives/Pill";
 import { Reveal } from "@/components/primitives/Reveal";
@@ -38,13 +38,8 @@ export function Resources() {
           {resources.cards.map((card, i) => {
             const Icon = icons[i % icons.length];
             const feature = i === 0;
-            return (
-              <Reveal
-                as="li"
-                key={card.title}
-                delay={i * 0.08}
-                className={feature ? "md:row-span-2" : ""}
-              >
+            const href = "href" in card ? card.href : undefined;
+            const body = (
                 <SpotlightCard
                   className={`flex h-full flex-col p-7 sm:p-9 ${feature ? "min-h-[22rem] md:min-h-[32rem]" : "min-h-[15rem]"}`}
                 >
@@ -58,8 +53,17 @@ export function Resources() {
                     <span className="flex h-12 w-12 items-center justify-center rounded-full border border-hairline-strong text-brand">
                       <Icon weight="duotone" className="h-6 w-6" aria-hidden />
                     </span>
-                    <span className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-muted">
+                    <span
+                      className={`flex items-center gap-1.5 font-mono text-[0.65rem] uppercase tracking-[0.18em] ${href ? "text-brand" : "text-muted"}`}
+                    >
                       {card.state}
+                      {href ? (
+                        <ArrowUpRightIcon
+                          weight="bold"
+                          className="h-3.5 w-3.5 transition-transform duration-300 group-hover/spot:-translate-y-0.5 group-hover/spot:translate-x-0.5"
+                          aria-hidden
+                        />
+                      ) : null}
                     </span>
                   </div>
                   <div className="mt-auto pt-10">
@@ -78,6 +82,27 @@ export function Resources() {
                     </p>
                   </div>
                 </SpotlightCard>
+            );
+            return (
+              <Reveal
+                as="li"
+                key={card.title}
+                delay={i * 0.08}
+                className={feature ? "md:row-span-2" : ""}
+              >
+                {href ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${card.title} (opens Google Drive in a new tab)`}
+                    className="block h-full rounded-[var(--radius)] outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+                  >
+                    {body}
+                  </a>
+                ) : (
+                  body
+                )}
               </Reveal>
             );
           })}
