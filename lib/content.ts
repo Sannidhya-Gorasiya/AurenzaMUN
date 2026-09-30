@@ -542,7 +542,7 @@ export const secretariat = {
         { name: "Aarav Jain", role: "HEAD OF SECURITY", photo: "/team/aarav-jain.webp" },
         { name: "Diya Joshi", role: "HEAD OF BRANDING & SUPPLIES", photo: "/team/diya-joshi.webp" },
         { name: "Daveena Hada", role: "HEAD OF DIGITAL MEDIA", photo: "/team/daveena-hada.webp" },
-        { name: "Zeal Joshi", role: "HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/zeal-joshi.webp" },
+        { name: "Tiksha Pant", role: "HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/tiksha-pant.webp" },
         { name: "Atharva Devadkar", role: "HEAD OF DELEGATE AFFAIRS", photo: "/team/atharva-devedkar.webp" },
       ],
     },
@@ -555,7 +555,7 @@ export const secretariat = {
       members: [
         { name: "Risha Mehta", role: "SUB-HEAD OF CREATIVE & FINE ARTS", photo: "/team/risha-mehta.webp" },
         { name: "Shreya Sheth", role: "SUB-HEAD OF DIGITAL MEDIA", photo: "/team/shreya-sheth.webp" },
-        { name: "Tiksha Pant", role: "SUB-HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/tiksha-pant.webp" },
+        { name: "Zeal Joshi", role: "SUB-HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/zeal-joshi.webp" },
         { name: "Kiara Parmar", role: "SUB-HEAD OF HOSPITALITY", photo: "/team/kiara-parmar.webp" },
         { name: "Hajel Rathod", role: "SUB-HEAD OF MARKETING & SPONSORS", photo: "/team/hazel-rathod.webp" },
         { name: "Mohit Fatnani", role: "SUB-HEAD OF PHOTOGRAPHY", photo: "/team/mohit-fatnani.webp" },
