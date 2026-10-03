@@ -1,18 +1,18 @@
 "use client";
 
-import { ArrowUpRightIcon, BookOpenTextIcon, GavelIcon, NewspaperIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRightIcon, BookOpenTextIcon, GavelIcon } from "@phosphor-icons/react/dist/ssr";
 import { resources } from "@/lib/content";
 import { Pill } from "@/components/primitives/Pill";
 import { Reveal } from "@/components/primitives/Reveal";
 import { SectionIntro } from "@/components/primitives/SectionIntro";
 import { SpotlightCard } from "@/components/primitives/SpotlightCard";
 
-const icons = [BookOpenTextIcon, GavelIcon, NewspaperIcon];
+const icons = [BookOpenTextIcon, GavelIcon];
 
 /**
- * Three documents as a bento: the study guide (the one every delegate
- * needs) takes the tall cell with a lit backdrop, the two narrower documents
- * stack beside it.
+ * Two documents side by side: the study guide (the one every delegate
+ * needs) gets the lit backdrop and the larger title, the rules of procedure
+ * sit beside it at the same height.
  */
 export function Resources() {
   return (
@@ -34,7 +34,7 @@ export function Resources() {
           </Reveal>
         </SectionIntro>
 
-        <ul className="mt-16 grid gap-4 md:grid-cols-2 md:grid-rows-2">
+        <ul className="mt-16 grid gap-4 md:grid-cols-2">
           {resources.cards.map((card, i) => {
             const Icon = icons[i % icons.length];
             const feature = i === 0;
@@ -88,7 +88,6 @@ export function Resources() {
                 as="li"
                 key={card.title}
                 delay={i * 0.08}
-                className={feature ? "md:row-span-2" : ""}
               >
                 {href ? (
                   <a

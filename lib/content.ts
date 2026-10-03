@@ -31,7 +31,7 @@ export const hero = {
   ctaPrimary: "REGISTER NOW",
   ctaSecondary: "EXPLORE COMMITTEES",
   stats: [
-    { value: 13, label: "COMMITTEES" },
+    { value: 12, label: "COMMITTEES" },
     { value: 2, label: "DAYS OF DEBATE" },
     { value: 400, label: "DELEGATES", suffix: "+" },
   ],
@@ -40,7 +40,7 @@ export const hero = {
     { label: "VENUE", value: "SVIS Kandivali, Mumbai" },
   ],
   marquee: [
-    "13 COMMITTEES",
+    "12 COMMITTEES",
     "2 DAYS OF DEBATE",
     "SVIS KANDIVALI",
     "MODEL UNITED NATIONS",
@@ -67,7 +67,7 @@ export type Committee = {
 };
 
 export type Track = {
-  id: "school" | "college" | "ip";
+  id: "school" | "college";
   tab: string;
   accent: Accent;
   committees: Committee[];
@@ -79,11 +79,10 @@ export type Track = {
  * from the secretariat's school and college matrix sheets. The descriptions and
  * focus areas are still DRAFT COPY written as a starting point.
  * Delete `portfolios` on any committee whose matrix is not public yet — the
- * second tab hides itself when the list is missing, which is what the
- * International Press does.
+ * second tab hides itself when the list is missing.
  */
 export const committees = {
-  eyebrow: "13 COMMITTEES · 3 TRACKS",
+  eyebrow: "12 COMMITTEES · 2 TRACKS",
   heading: ["CHOOSE YOUR", "COMMITTEE"] as [string, string],
   description:
     "Agendas are live. Select a track to explore the committees available for delegation.",
@@ -422,26 +421,6 @@ export const committees = {
         },
       ],
     },
-    {
-      id: "ip",
-      tab: "IP Committee",
-      accent: "ice",
-      committees: [
-        {
-          abbr: "IP",
-          name: "International Press · open to both school & college delegates",
-          description:
-            "The International Press covers every committee at the conference. Delegates work as reporters, photographers and caricaturists, filing copy on debates as they happen and holding the floor to account.",
-          chair: "Shriya Rajan",
-          focus: [
-            "File accurate copy under deadline",
-            "Interview delegates and chairs on the record",
-            "Capture the conference in photograph and caricature",
-            "Separate reporting from editorial opinion",
-          ],
-        },
-      ],
-    },
   ] satisfies Track[],
 } as const;
 
@@ -588,13 +567,6 @@ export const resources = {
         "The official AurenzaMUN Rules of Procedure document governing all committee sessions, motions, and voting procedures.",
       state: "Available",
       href: "https://drive.google.com/drive/folders/1Ue2A1mTQynOb0khmMqXWDGwb5olciLhR?usp=sharing",
-    },
-    {
-      title: "IP Press Guidelines",
-      tag: "IP COMMITTEE",
-      description:
-        "Specific guidelines for International Press delegates covering article formats, reporting standards, and press conference etiquette.",
-      state: "Coming Soon",
     },
   ],
   closing: "Resources will be made available ahead of the conference. Stay tuned for updates.",

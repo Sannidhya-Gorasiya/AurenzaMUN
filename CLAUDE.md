@@ -28,7 +28,7 @@ The project has no test suite.
 - `TeamMember.photo`: a square portrait in `public/team/*.webp`, cropped with the nose centred. Leave it out and the panel falls back to initials.
 - `TeamGroup.panelRows`: reserves a fixed grid and shows dashed placeholders, so the layout doesn't shift as names are announced.
 
-`info.md` is the original content extraction from the old Rocket.new site. It is out of date (for example, it says 11 committees where `content.ts` has 13), so treat `content.ts` as the source of truth.
+`info.md` is the original content extraction from the old Rocket.new site. It is out of date (for example, it says 11 committees where `content.ts` has 12), so treat `content.ts` as the source of truth.
 
 **Components**
 - `components/sections/`: one file per page section.
