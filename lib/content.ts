@@ -98,7 +98,7 @@ export const committees = {
           abbr: "MARVEL",
           name: "Marvel Crisis Committee",
           agenda:
-            "The rise of Doctor Doom and the emerging threat to global security: addressing the consolidation of power, sovereignty, weaponisation of advanced technology, and the international response to a new global threat.",
+            "The rise of Doctor Doom and the emerging threat to global security: Addressing the consolidation of power, sovereignty, weaponisation of advanced technology, and the international response to a new global threat.",
           description:
             "A fast-moving crisis committee set in the Marvel universe. Delegates take on the powers, allegiances and grudges of iconic heroes and villains while an escalating threat forces the room to negotiate under pressure.",
           chair: "Trisha Shinde",
@@ -121,7 +121,7 @@ export const committees = {
           abbr: "AIPPM",
           name: "All India Political Parties Meet",
           agenda:
-            "Agenda A: discussion and deliberation on the constitutional validity of anti-conversion laws in India.\n\nAgenda B: discussion upon Article 19(1)(a), freedom of speech and expression, with special emphasis on press freedom in India.",
+            "Agenda A: Discussion and deliberation on the constitutional validity of anti-conversion laws in India.\n\nAgenda B: Discussion upon Article 19(1)(a), freedom of speech and expression, with special emphasis on press freedom in India.",
           description:
             "The All India Political Parties Meet puts leaders from across the political spectrum in one room. Delegates argue as sitting politicians, defending a party line in public while searching for a consensus the country can actually live with.",
           chair: "Atharva Devadkar",
@@ -226,7 +226,7 @@ export const committees = {
           abbr: "MAHABHARATA",
           name: "A committee set on Mahabharata.",
           agenda:
-            "The Kurukshetra war: preventing, reshaping or waging the Great War: political alliances, succession, diplomacy and the fate of Hastinapura.",
+            "The Kurukshetra war: Preventing, reshaping or waging the Great War: Political alliances, succession, diplomacy and the fate of Hastinapura.",
           description:
             "Set in the Sabha of Hastinapura on the edge of the Kurukshetra war. Delegates embody the characters of the epic and argue dharma against ambition, kinship against justice, with the fate of a kingdom on the table.",
           chair: "Kaushal Barge",
@@ -385,7 +385,7 @@ export const committees = {
           abbr: "C.C.C",
           name: "Continuous Crisis Committee",
           agenda:
-            "1975: a world where the Axis won; shaping the future of a new world order.",
+            "1975: A world where the Axis won; shaping the future of a new world order.",
           description:
             "A continuous crisis committee that never resets. Directives, updates and consequences carry forward across every session, so a decision taken in the first hour is still shaping the room on day two.",
           chair: "Jai Melwani",
