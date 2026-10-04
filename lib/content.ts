@@ -98,7 +98,7 @@ export const committees = {
           abbr: "MARVEL",
           name: "Marvel Crisis Committee",
           agenda:
-            "The rise of Doctor Doom and the emerging threat to global security: Addressing the consolidation of power, sovereignty, weaponisation of advanced technology, and the international response to a new global threat.",
+            "Heroes, villains or weapons? Addressing the actions and accountability of superhumans such as Jean Grey, Hulk, Bucky Barnes, Yelena Belova and the Thunderbolts, and determining their place in global security.",
           description:
             "A fast-moving crisis committee set in the Marvel universe. Delegates take on the powers, allegiances and grudges of iconic heroes and villains while an escalating threat forces the room to negotiate under pressure.",
           chair: "Trisha Shinde",
@@ -110,11 +110,16 @@ export const committees = {
           ],
           portfolioLabel: "CHARACTERS",
           portfolios: [
-            "Doctor Doom", "Mister Fantastic", "Invisible Woman", "The Thing",
-            "Human Torch", "Captain America", "Iron Man", "Thor", "Doctor Strange",
-            "Wong", "Professor X", "Wolverine", "Storm", "Black Panther", "Namor",
-            "Loki", "Scarlet Witch", "Deadpool", "Nick Fury", "Bob Reynolds",
-            "Spider Man", "Nebula", "Black Widow", "Winter Soldier", "Ant Man", "Wasp",
+            "Sam Wilson / Captain America", "Bucky Barnes / Winter Soldier",
+            "Yelena Belova", "John Walker / U.S. Agent", "Alexei Shostakov / Red Guardian",
+            "Okoye", "Antonia Dreykov / Taskmaster", "Bob Reynolds / Sentry",
+            "Bruce Banner / Hulk", "Jennifer Walters / She-Hulk", "Thor Odinson",
+            "Carol Danvers / Captain Marvel", "Peter Parker / Spider-Man",
+            "Stephen Strange / Doctor Strange", "Wanda Maximoff / Scarlet Witch",
+            "Scott Lang / Ant-Man", "Shuri / Black Panther", "Hope van Dyne / Wasp",
+            "Matt Murdock / Daredevil", "Frank Castle / Punisher", "Wong", "Jean Grey",
+            "Kate Bishop", "Rocket", "Nebula", "Quill / Starlord", "Clint Barton / Hawkeye",
+            "Loki", "Erik Killmonger", "Nick Fury",
           ],
         },
         {
