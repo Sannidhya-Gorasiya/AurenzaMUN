@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { committees, type Accent, type Committee, type Track } from "@/lib/content";
 import { EASE } from "@/lib/motion";
 import { CommitteeModal } from "@/components/primitives/CommitteeModal";
@@ -50,18 +50,16 @@ const CommitteeCard = memo(function CommitteeCard({
   committee,
   accent,
   index,
-  reduce,
   onOpen,
 }: {
   committee: Committee;
   accent: Accent;
   index: number;
-  reduce: boolean;
   onOpen: (c: Committee) => void;
 }) {
   return (
     <motion.div
-      initial={reduce ? {} : { opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: EASE, delay: index * 0.07 }}
     >
@@ -73,8 +71,8 @@ const CommitteeCard = memo(function CommitteeCard({
           onClick={() => onOpen(committee)}
           aria-label={
             committee.agenda
-              ? `${committee.abbr} — view agenda and portfolios`
-              : `${committee.abbr} — view details and portfolios`
+              ? `${committee.abbr} — view agenda`
+              : `${committee.abbr} — view details`
           }
           className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-2"
         />
@@ -143,7 +141,6 @@ const CommitteeCard = memo(function CommitteeCard({
 });
 
 export function Committees() {
-  const reduce = useReducedMotion();
   const coarse = useCoarsePointer();
   type TrackId = (typeof committees.tracks)[number]["id"];
   const [active, setActive] = useState<TrackId>(committees.tracks[0].id);
@@ -222,16 +219,16 @@ export function Committees() {
             id={`track-panel-${track.id}`}
             role="tabpanel"
             aria-labelledby={`track-tab-${track.id}`}
-            initial={reduce ? { opacity: 0 } : { opacity: 0, x: dir * 48 }}
+            initial={{ opacity: 0, x: dir * 48 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, x: dir * -48 }}
+            exit={{ opacity: 0, x: dir * -48 }}
             transition={{ duration: 0.4, ease: EASE }}
             /* The tabs are the only way to reach the other tracks, and
                reaching up to a pill is the worst thing you can ask of a
                thumb. On touch the panel itself is draggable, so the tracks
                page sideways under the finger. dragDirectionLock keeps a
                vertical flick scrolling the page as normal. */
-            drag={coarse && !reduce ? "x" : false}
+            drag={coarse ? "x" : false}
             dragDirectionLock
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.18}
@@ -261,7 +258,6 @@ export function Committees() {
                     committee={c}
                     accent={track.accent}
                     index={i}
-                    reduce={!!reduce}
                     onOpen={openCommittee}
                   />
                 ))}

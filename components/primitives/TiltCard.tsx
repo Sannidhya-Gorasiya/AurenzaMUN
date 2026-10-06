@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
+import { motion, useMotionValue, useSpring } from "motion/react";
 import type { Accent } from "@/lib/content";
 import { useCoarsePointer } from "@/lib/pointer";
 
@@ -32,7 +32,7 @@ const MAX_TILT = 7; // degrees
  * snapping back — so touch gets a press-in scale and the accent glow held
  * for as long as the finger is down.
  *
- * Reduced motion / interactive={false} keep the card static, glow-only.
+ * interactive={false} keeps the card static, glow-only.
  */
 export function TiltCard({
   children,
@@ -45,7 +45,6 @@ export function TiltCard({
   interactive?: boolean;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
   const coarse = useCoarsePointer();
   const ref = useRef<HTMLDivElement>(null);
   const [pressed, setPressed] = useState(false);
@@ -54,7 +53,7 @@ export function TiltCard({
   const srx = useSpring(rx, { stiffness: 200, damping: 20 });
   const sry = useSpring(ry, { stiffness: 200, damping: 20 });
 
-  const reactive = interactive && !reduce;
+  const reactive = interactive;
   const tilt = reactive && !coarse;
 
   function handleMove(e: React.PointerEvent) {

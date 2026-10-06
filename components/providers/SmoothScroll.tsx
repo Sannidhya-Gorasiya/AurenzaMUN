@@ -14,12 +14,12 @@ import { registerLenis } from "@/lib/scroll";
  * on a phone-class CPU, Lenis's touch smoothing (syncTouch) drove the
  * scroll from JavaScript and stuttered whenever a frame ran long, and even
  * with it off, Lenis still read the scroll position and toggled a class on
- * <html> (a whole-document restyle) on every scroll. Reduced motion skips
- * it too; lib/scroll falls back to native for both.
+ * <html> (a whole-document restyle) on every scroll; lib/scroll falls back
+ * to native there. Reduced motion keeps it: the site plays the same
+ * everywhere (see the note at the end of globals.css).
  */
 export function SmoothScroll() {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (isTouchPrimary()) return;
 
     const lenis = new Lenis({

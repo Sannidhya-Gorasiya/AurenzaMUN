@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { EASE } from "@/lib/motion";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
 import type { Accent, Committee } from "@/lib/content";
@@ -61,7 +61,6 @@ export function CommitteeModal({
   portfolioNote: string;
   onClose: () => void;
 }) {
-  const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState("overview");
   const locked = useRef(false);
@@ -167,9 +166,9 @@ export function CommitteeModal({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        initial={reduce ? { opacity: 0 } : { opacity: 0, y: 28, scale: 0.97 }}
+        initial={{ opacity: 0, y: 28, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={reduce ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.98 }}
+        exit={{ opacity: 0, y: 20, scale: 0.98 }}
         transition={{ duration: 0.4, ease: EASE }}
         className="glass relative z-10 flex max-h-[88vh] w-full max-w-3xl bg-[#0e1016] flex-col overflow-hidden rounded-3xl shadow-2xl shadow-black/60 focus-visible:outline-2"
       >
@@ -235,9 +234,9 @@ export function CommitteeModal({
           <AnimatePresence mode="wait">
             <motion.div
               key={tab}
-              initial={{ opacity: 0, y: reduce ? 0 : 10 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reduce ? 0 : -10 }}
+              exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25, ease: EASE }}
             >
               {tab === "overview" ? (

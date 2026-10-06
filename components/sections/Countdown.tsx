@@ -1,13 +1,13 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { alternateIn } from "@/lib/motion";
 import { GenerativeBackground } from "@/components/primitives/GenerativeBackground";
 import { LegacySectionIntro as SectionIntro } from "@/components/primitives/legacy/LegacySectionIntro";
 import { Reveal } from "@/components/primitives/Reveal";
 
-/** Opening gavel — 10th October 2026, 12:00 AM IST. */
-const TARGET = new Date("2026-10-10T00:00:00+05:30").getTime();
+/** Opening gavel — 10th October 2026, 7:00 AM IST. */
+const TARGET = new Date("2026-10-10T07:00:00+05:30").getTime();
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -71,7 +71,7 @@ const CountdownIntro = memo(function CountdownIntro({ done }: { done: boolean })
         description={
           done
             ? "AurenzaMUN is officially underway — see you in committee."
-            : "The gavel drops 10th October 2026, 12:00 AM IST at SVIS Kandivali, Mumbai."
+            : "The gavel drops 10th October 2026, 7:00 AM IST at SVIS Kandivali, Mumbai."
         }
         accent="gold"
         accentClass="text-brand"
@@ -91,15 +91,30 @@ export function Countdown() {
   const [time, setTime] = useState<ReturnType<typeof getRemaining> | null>(
     null,
   );
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     /* First reading lands after the first paint, not during the effect
        body, so correcting "now" never cascades a render out of hydration. */
     const first = requestAnimationFrame(() => setTime(getRemaining()));
-    const id = setInterval(() => setTime(getRemaining()), 1000);
+    /* Ticks only while the section is on (or near) the screen: nobody can
+       see the digits roll anywhere else, and a phone is spared a render a
+       second for the rest of the page. Catches up the moment it returns. */
+    let id = 0;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        clearInterval(id);
+        if (!entry.isIntersecting) return;
+        setTime(getRemaining());
+        id = window.setInterval(() => setTime(getRemaining()), 1000);
+      },
+      { rootMargin: "200px 0px" },
+    );
+    if (ref.current) io.observe(ref.current);
     return () => {
       cancelAnimationFrame(first);
       clearInterval(id);
+      io.disconnect();
     };
   }, []);
 
@@ -114,6 +129,7 @@ export function Countdown() {
 
   return (
     <section
+      ref={ref}
       id="countdown"
       aria-labelledby="countdown-heading"
       className="relative overflow-hidden px-5 py-24 sm:px-8 sm:py-32"

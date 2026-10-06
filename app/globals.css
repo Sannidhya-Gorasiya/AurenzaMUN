@@ -143,6 +143,14 @@ section[id] {
   contain: strict;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
+/* Touch screens skip it. At 6% it is barely visible on a small, bright
+   screen, but it is a full-screen layer blended over everything on every
+   frame the phone composites, which a mobile GPU pays for in fill rate. */
+@media (hover: none) and (pointer: coarse) {
+  .grain {
+    display: none;
+  }
+}
 
 /* ============================================================
    Surfaces
@@ -417,38 +425,70 @@ section[id] {
   }
 }
 
-/* ============================================================
-   Reduced motion
-   ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+/* Registration steps: each numeral lights from outline to gold between its
+   step's top reaching 80% of the screen and its centre reaching the middle
+   (cover 20vh → cover 50%); from sm up the text slides in over the same
+   stretch. The rail fills from the list's top at 70% of the screen to its
+   bottom at 60% (cover 30vh → cover 100% - 60vh). The resting states sit
+   outside @supports, so the script fallback starts from them too. */
+@keyframes step-lit {
+  from {
+    opacity: 0;
   }
-  .backdrop-light,
-  .marquee-drift,
-  .marquee-scroll,
-  .hero-scene,
-  .hero-type,
-  .read-progress {
-    animation: none !important;
-  }
-  .read-progress {
-    scale: 0 1;
-  }
-  .digit-out {
-    display: none;
-  }
-  .reveal,
-  .rise .rise-token,
-  .rise-now .rise-token,
-  .intro-rise {
+  to {
     opacity: 1;
-    translate: none;
-    transition: none !important;
-    animation: none !important;
   }
 }
+@keyframes step-slide {
+  from {
+    translate: 40px 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+@keyframes step-rail {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.step-lit {
+  opacity: 0;
+}
+.steps-fill {
+  transform: scaleY(0);
+}
+@supports (animation-timeline: view()) {
+  .step {
+    view-timeline: --step block;
+  }
+  .step-lit {
+    animation: step-lit linear both;
+    animation-timeline: --step;
+    animation-range: cover 20vh cover 50%;
+  }
+  @media (min-width: 40rem) {
+    .step-text {
+      animation: step-slide linear both;
+      animation-timeline: --step;
+      animation-range: cover 20vh cover 50%;
+    }
+  }
+  .steps {
+    view-timeline: --steps block;
+  }
+  .steps-fill {
+    animation: step-rail linear both;
+    animation-timeline: --steps;
+    animation-range: cover 30vh cover calc(100% - 60vh);
+  }
+}
+
+/* No reduced-motion block, on purpose. Android reports
+   `prefers-reduced-motion` whenever animations are switched off in
+   Developer options (or "Remove animations", or some battery savers),
+   which left the site completely still on those phones. The site plays
+   the same everywhere. */

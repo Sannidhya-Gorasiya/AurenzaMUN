@@ -33,9 +33,11 @@ export function GenerativeBackground({
       {/* aurora glow — non-blurred radial gradients */}
       <div className="absolute inset-0" style={{ backgroundImage: glow }} />
 
-      {/* faint grid */}
+      {/* faint grid. Not on touch screens: at 4% it barely shows on a
+          phone, and a masked layer the size of a whole section is costly
+          for a phone to rasterise as it scrolls into view. */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0 opacity-[0.04] [@media(hover:none)_and_(pointer:coarse)]:hidden"
         style={{
           backgroundImage:
             "linear-gradient(to right, var(--foreground) 1px, transparent 1px), linear-gradient(to bottom, var(--foreground) 1px, transparent 1px)",

@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useReducedMotion } from "motion/react";
-import { perfTier } from "@/lib/device";
+import { isTouchPrimary, perfTier } from "@/lib/device";
 
 /* Domain-warped fbm: slow gold light drifting through navy fog, leaning a
    little toward the pointer. Dark in the lower left, where the hero type
@@ -86,12 +85,18 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
    than that. Phones draw one octave fewer, the detail they have always
    shown. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
    1.5 gets one buffer pixel per two screen pixels, finer than the eye can
-   pick out once smoothed, for a quarter of the cost of the full 3x. `floor`
-   is the least the adaptive step-down (below) may fall to, in CSS pixels. */
+   pick out once smoothed. `floor` is the least the adaptive step-down
+   (below) may fall to, in CSS pixels.
+
+   Phones draw well under one buffer pixel per CSS pixel: the fog is soft
+   enough that the browser's upscale hides it, and at the old 1.5 a phone
+   GPU was shading some 740k pixels thirty times a second, the same GPU
+   that has to composite every scroll frame. One buffer pixel per CSS pixel
+   (mid) is under half of that, 0.7 (low) about a quarter. */
 const QUALITY = {
   high: { octaves: 4, fps: 30, density: 2, floor: 1 },
-  mid: { octaves: 3, fps: 30, density: 1.5, floor: 1 },
-  low: { octaves: 3, fps: 24, density: 1.25, floor: 0.75 },
+  mid: { octaves: 3, fps: 24, density: 1, floor: 0.6 },
+  low: { octaves: 3, fps: 20, density: 0.7, floor: 0.5 },
 } as const;
 
 /* Adaptive resolution: drawn frames are timed over windows of this length.
@@ -108,6 +113,12 @@ const STEP = 0.8;
    scroll. */
 const MIN_VISIBLE = 0.3;
 
+/* Touch only: the flow holds its frame while the page is moving under a
+   finger, and resumes this long after the last scroll event. It drifts so
+   slowly that a held frame cannot be seen, and the GPU spends those frames
+   on the scroll instead. */
+const SCROLL_REST_MS = 220;
+
 /* Fixed-scale mode (`cssScale`) caps its buffer at this many pixels. */
 const CSS_SCALE_MAX_PIXELS = 320_000;
 
@@ -115,8 +126,9 @@ const CSS_SCALE_MAX_PIXELS = 320_000;
  * Hand-written WebGL "paint flow" behind the hero. Renders at device
  * resolution up to the tier's density cap, stepping down only if the GPU
  * cannot hold the frame rate; stops once mostly off screen or when the tab
- * is hidden, and paints a single still
- * frame under reduced motion. No WebGL: the CSS gradient behind it shows.
+ * is hidden, and on touch screens holds still while the page is being
+ * scrolled. Reduced motion keeps it moving: it is a slow drift, not motion
+ * tied to the scroll. No WebGL: the CSS gradient behind it shows.
  */
 export function ShaderBackdrop({
   className = "",
@@ -124,6 +136,7 @@ export function ShaderBackdrop({
   gold = true,
   paused = false,
   cssScale,
+  cull = true,
 }: {
   className?: string;
   /** Darken the lower left, where the hero type sits. */
@@ -135,9 +148,11 @@ export function ShaderBackdrop({
   /** Draw at this fraction of CSS pixels instead of device resolution, for
       layers too soft to need it (the cursor light). */
   cssScale?: number;
+  /** Stop once mostly off screen. Off for a layer clipped by its parent,
+      which would always read as mostly hidden. */
+  cull?: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
-  const reduce = useReducedMotion();
   const pausedRef = useRef(paused);
   const wakeRef = useRef<() => void>(() => {});
 
@@ -244,7 +259,7 @@ export function ShaderBackdrop({
       resize();
       mouse.x += (mouse.tx - mouse.x) * 0.04;
       mouse.y += (mouse.ty - mouse.y) * 0.04;
-      gl!.uniform1f(uTime, reduce ? 12 : (now - start) / 1000 + 12);
+      gl!.uniform1f(uTime, (now - start) / 1000 + 12);
       gl!.uniform2f(uMouse, mouse.x, mouse.y);
       gl!.drawArrays(gl!.TRIANGLES, 0, 3);
     }
@@ -275,10 +290,19 @@ export function ShaderBackdrop({
       res = Math.max(Math.min(1, floor), res * STEP);
     }
 
+    const touch = isTouchPrimary();
+    let scrolledAt = -Infinity;
+    const onScroll = () => {
+      scrolledAt = performance.now();
+    };
+
     function loop(now: number) {
-      /* Skip frames to hold the tier's rate; a small tolerance keeps a
-         60Hz display landing on every second frame for 30fps. */
-      if (now - last >= interval - 2) {
+      if (now - scrolledAt < SCROLL_REST_MS) {
+        /* A held frame is not a slow one: the timing window starts over. */
+        frames = 0;
+      } else if (now - last >= interval - 2) {
+        /* Skip frames to hold the tier's rate; a small tolerance keeps a
+           60Hz display landing on every second frame for 30fps. */
         last = now;
         draw(now);
         measure(now);
@@ -294,16 +318,6 @@ export function ShaderBackdrop({
     }
     wakeRef.current = wake;
 
-    if (reduce) {
-      draw(performance.now());
-      const ro = new ResizeObserver(() => requestAnimationFrame(() => draw(performance.now())));
-      ro.observe(canvas);
-      return () => {
-        ro.disconnect();
-        sizer.disconnect();
-      };
-    }
-
     /* Measured against the canvas and against the screen, so a hero taller
        than the screen still counts as visible while it fills it. */
     const io = new IntersectionObserver(
@@ -316,9 +330,10 @@ export function ShaderBackdrop({
       },
       { threshold: [0, MIN_VISIBLE, 0.6, 1] },
     );
-    io.observe(canvas);
+    if (cull) io.observe(canvas);
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("pointermove", onPointer, { passive: true });
+    if (touch) window.addEventListener("scroll", onScroll, { passive: true });
     raf = requestAnimationFrame(loop);
 
     return () => {
@@ -327,8 +342,9 @@ export function ShaderBackdrop({
       sizer.disconnect();
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("scroll", onScroll);
     };
-  }, [reduce, vignette, gold, cssScale]);
+  }, [vignette, gold, cssScale, cull]);
 
   return (
     <canvas

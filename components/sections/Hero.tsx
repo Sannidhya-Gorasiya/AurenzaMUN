@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type CSSProperties, type RefObject } from "react";
-import { useReducedMotion, useScroll } from "motion/react";
+import { useScroll } from "motion/react";
 import { hero } from "@/lib/content";
 import { useScrollTimelines } from "@/lib/device";
 import { progressBetween } from "@/lib/motion";
@@ -49,7 +49,6 @@ function HeroParallaxFallback({
 }
 
 export function Hero() {
-  const reduce = useReducedMotion();
   const cssScroll = useScrollTimelines();
   const ref = useRef<HTMLElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -75,7 +74,7 @@ export function Hero() {
     >
       {/* The paint flow. Its lower edge is masked away so it dissolves into
           the voxel backdrop instead of ending on a hard line. */}
-      {!reduce && !cssScroll ? (
+      {!cssScroll ? (
         <HeroParallaxFallback target={ref} scene={sceneRef} type={typeRef} />
       ) : null}
       <div

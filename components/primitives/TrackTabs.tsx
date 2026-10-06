@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import type { Accent } from "@/lib/content";
 
 export type TabItem = {
@@ -65,7 +65,6 @@ export function TrackTabs({
   onChange: (id: string) => void;
   idBase?: string;
 }) {
-  const reduce = useReducedMotion();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
   /* An odd count leaves the last tab alone on its row of the mobile grid. */
@@ -93,7 +92,7 @@ export function TrackTabs({
         return (
           <motion.button
             key={tab.id}
-            whileTap={reduce ? undefined : { scale: 0.92 }}
+            whileTap={{ scale: 0.92 }}
             ref={(el) => {
               refs.current[i] = el;
             }}

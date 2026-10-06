@@ -1,12 +1,11 @@
 "use client";
 
 import type { MouseEvent, ReactNode } from "react";
-import { useReducedMotion } from "motion/react";
 import { scrollToTarget } from "@/lib/scroll";
 
 /**
- * In-page anchor that hands the scroll to Lenis (or native scrolling under
- * reduced motion) and keeps the URL hash in step.
+ * In-page anchor that hands the scroll to Lenis (or native scrolling where
+ * Lenis is off) and keeps the URL hash in step.
  */
 export function NavLink({
   href,
@@ -21,8 +20,6 @@ export function NavLink({
   onNavigate?: () => void;
   ariaCurrent?: boolean;
 }) {
-  const reduce = useReducedMotion();
-
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
     if (!href.startsWith("#")) return;
     e.preventDefault();
@@ -30,7 +27,7 @@ export function NavLink({
     /* Next frame, so a menu closing on the same click has released the
        scroll lock before Lenis is asked to move. */
     requestAnimationFrame(() => {
-      if (scrollToTarget(href, !!reduce)) window.history.pushState(null, "", href);
+      if (scrollToTarget(href)) window.history.pushState(null, "", href);
     });
   }
 

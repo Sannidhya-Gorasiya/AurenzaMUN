@@ -1,13 +1,9 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
+import { useScroll } from "motion/react";
 import { registration } from "@/lib/content";
+import { useScrollTimelines } from "@/lib/device";
 import { MagneticButton } from "@/components/primitives/MagneticButton";
 import { Pill } from "@/components/primitives/Pill";
 import { Reveal } from "@/components/primitives/Reveal";
@@ -29,67 +25,148 @@ const useWide = () =>
     () => false,
   );
 
+const progress = progressBetween(0, 1);
+
+/**
+ * Script fallback for one step, mounted only where CSS scroll-driven
+ * animations are missing (Firefox, Safari before 26). Writes the same
+ * values as the `step-lit` / `step-slide` keyframes straight to the
+ * elements, without re-rendering React.
+ */
+function StepFallback({
+  targetRef,
+  litRef,
+  textRef,
+}: {
+  targetRef: RefObject<HTMLLIElement | null>;
+  litRef: RefObject<HTMLSpanElement | null>;
+  textRef: RefObject<HTMLDivElement | null>;
+}) {
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start 80%", "center 50%"],
+  });
+  const slide = useWide();
+  useEffect(() => {
+    const write = (p: number) => {
+      const v = progress(p);
+      const litEl = litRef.current;
+      const textEl = textRef.current;
+      if (litEl) litEl.style.opacity = String(v);
+      if (textEl) textEl.style.transform = slide ? `translate3d(${40 * (1 - v)}px, 0, 0)` : "";
+    };
+    write(scrollYProgress.get());
+    return scrollYProgress.on("change", write);
+  }, [scrollYProgress, litRef, textRef, slide]);
+  return null;
+}
+
 /**
  * One step: its numeral lights from outline to gold as it crosses
  * mid-screen. From `sm` up the text also slides in; on a phone that slide
  * pushed the text past the screen edge mid-scroll, so there the numeral's
- * fill carries the motion alone.
+ * fill carries the motion alone. Both run as CSS scroll-driven animations
+ * (`.step-lit`, `.step-text` in globals.css), on the compositor.
  */
 function Step({
   step,
-  reduce,
+  cssScroll,
 }: {
   step: (typeof registration.steps)[number];
-  reduce: boolean;
+  cssScroll: boolean;
 }) {
   const ref = useRef<HTMLLIElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 80%", "center 50%"],
-  });
-  const lit = useTransform(scrollYProgress, progressBetween(0, 1));
-  const x = useTransform(scrollYProgress, [0, 1], [40, 0]);
-  const slide = useWide() && !reduce;
+  const litRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
   return (
     <li
       ref={ref}
-      className="relative grid grid-cols-[auto_1fr] gap-4 py-9 first:pt-0 sm:gap-8 sm:py-16"
+      className="step relative grid grid-cols-[auto_1fr] gap-4 py-9 first:pt-0 sm:gap-8 sm:py-16"
     >
+      {cssScroll ? null : <StepFallback targetRef={ref} litRef={litRef} textRef={textRef} />}
       <span className="relative w-[1.75em] font-display text-[clamp(2.4rem,8vw,6.5rem)] font-black leading-[0.85] tracking-tight">
         <span aria-hidden className="text-outline">
           {step.index}
         </span>
-        <motion.span
-          aria-hidden
-          style={reduce ? undefined : { opacity: lit }}
-          className="absolute inset-0 text-brand"
-        >
+        <span ref={litRef} aria-hidden className="step-lit absolute inset-0 text-brand">
           {step.index}
-        </motion.span>
+        </span>
       </span>
-      <motion.div
-        style={slide ? { x } : undefined}
-        className="min-w-0 pt-1 sm:pt-2"
-      >
+      <div ref={textRef} className="step-text min-w-0 pt-1 sm:pt-2">
         <h3 className="font-display text-xl font-bold leading-tight tracking-tight sm:text-3xl">
           {step.title}
         </h3>
         <p className="mt-2 max-w-[46ch] text-[0.95rem] leading-relaxed text-muted sm:mt-3 sm:text-base">
           {step.body}
         </p>
-      </motion.div>
+      </div>
     </li>
+  );
+}
+
+/** Script fallback for the rail, as StepFallback is for the steps. */
+function RailFallback({
+  targetRef,
+  fillRef,
+}: {
+  targetRef: RefObject<HTMLDivElement | null>;
+  fillRef: RefObject<HTMLDivElement | null>;
+}) {
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start 70%", "end 60%"],
+  });
+  useEffect(() => {
+    const write = (p: number) => {
+      const fillEl = fillRef.current;
+      if (fillEl) fillEl.style.transform = `scaleY(${progress(p)})`;
+    };
+    write(scrollYProgress.get());
+    return scrollYProgress.on("change", write);
+  }, [scrollYProgress, fillRef]);
+  return null;
+}
+
+/**
+ * The numbered steps beside a rail that fills gold as you read down. Shared
+ * by both layouts. All of it is CSS scroll-driven (`.steps-fill`), so
+ * nothing here runs on the main thread while the page scrolls.
+ */
+function StepRail() {
+  const cssScroll = useScrollTimelines();
+  const ref = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div ref={ref} className="steps relative">
+      {cssScroll ? null : <RailFallback targetRef={ref} fillRef={fillRef} />}
+      <div
+        aria-hidden
+        className="absolute bottom-0 left-0 top-0 w-px bg-hairline"
+      >
+        <div
+          ref={fillRef}
+          className="steps-fill h-full w-full origin-top bg-brand will-change-transform"
+        />
+      </div>
+      <ol className="overflow-x-clip pl-6 sm:pl-12">
+        {registration.steps.map((s) => (
+          <Step key={s.index} step={s} cssScroll={cssScroll} />
+        ))}
+      </ol>
+    </div>
   );
 }
 
 /**
  * Phones only: the section's original pre-redesign layout (eyebrow heading,
- * numbered step list, then the Register Now card with the details as
- * label/value rows), drawn in the countdown and stats panel shape: one
- * bordered block with hairline dividers rather than separate glass cards.
+ * the scroll-lit step rail shared with the wide layout, then the Register
+ * Now card with the details as label/value rows).
  */
 function RegistrationMobile() {
+  const wide = useWide();
+
   return (
     <div className="sm:hidden">
       <div id="register-heading-mobile">
@@ -101,31 +178,12 @@ function RegistrationMobile() {
         />
       </div>
 
-      <ol className="mt-12 overflow-hidden rounded-surface border border-hairline">
-        {registration.steps.map((step, i) => (
-          <Reveal
-            as="li"
-            key={step.index}
-            delay={i * 0.08}
-            className={`bg-background/60 ${i > 0 ? "border-t border-hairline" : ""}`}
-          >
-            <div className="group p-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-brand/40 font-display text-sm font-bold text-brand transition-colors duration-300 group-active:bg-brand group-active:text-brand-fg">
-                {step.index}
-              </div>
-              <h3 className="mt-5 font-display text-lg font-semibold">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {step.body}
-              </p>
-            </div>
-          </Reveal>
-        ))}
-      </ol>
+      {/* Mounted only below sm, so a desktop doesn't track scroll for a
+          hidden copy of the rail. */}
+      <div className="mt-12">{wide ? null : <StepRail />}</div>
 
       <Reveal delay={0.15}>
-        <div className="mt-8 overflow-hidden rounded-surface border border-hairline bg-background/60 p-6">
+        <div className="mt-12 overflow-hidden rounded-surface border border-hairline bg-background/60 p-6">
           <h3 className="font-display text-xl font-bold uppercase tracking-tight">
             Register Now
           </h3>
@@ -201,13 +259,6 @@ export function Registration() {
 
 /** From sm up: the redesigned layout. */
 function RegistrationWide() {
-  const reduce = useReducedMotion();
-  const listRef = useRef<HTMLOListElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: listRef,
-    offset: ["start 70%", "end 60%"],
-  });
-
   return (
       <div className="mx-auto hidden max-w-7xl sm:block">
         <SectionIntro
@@ -279,21 +330,8 @@ function RegistrationWide() {
           </div>
 
           {/* right: the steps, with a rail that fills as you read down */}
-          <div className="relative lg:col-span-6 lg:col-start-7">
-            <div
-              aria-hidden
-              className="absolute bottom-0 left-0 top-0 w-px bg-hairline"
-            >
-              <motion.div
-                style={reduce ? { scaleY: 1 } : { scaleY: scrollYProgress }}
-                className="h-full w-full origin-top bg-brand"
-              />
-            </div>
-            <ol ref={listRef} className="overflow-x-clip pl-6 sm:pl-12">
-              {registration.steps.map((s) => (
-                <Step key={s.index} step={s} reduce={!!reduce} />
-              ))}
-            </ol>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <StepRail />
           </div>
         </div>
       </div>

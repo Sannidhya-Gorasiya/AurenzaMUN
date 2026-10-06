@@ -75,8 +75,8 @@ export type Track = {
 };
 
 /**
- * The agendas and the portfolio matrices below are the confirmed ones, copied
- * from the secretariat's school and college matrix sheets. The descriptions and
+ * The agendas below are the confirmed ones, copied
+ * from the secretariat's school and college sheets. The descriptions and
  * focus areas are still DRAFT COPY written as a starting point.
  * Delete `portfolios` on any committee whose matrix is not public yet — the
  * second tab hides itself when the list is missing.
@@ -86,7 +86,7 @@ export const committees = {
   heading: ["CHOOSE YOUR", "COMMITTEE"] as [string, string],
   description:
     "Agendas are live. Select a track to explore the committees available for delegation.",
-  note: "Tap any committee for its agenda, focus areas and portfolio matrix.",
+  note: "Tap any committee for its agenda and focus areas.",
   portfolioNote: "Portfolios are subject to availability at the time of registration.",
   tracks: [
     {
@@ -108,15 +108,6 @@ export const committees = {
             "Negotiate alliances across hero and villain lines",
             "Weigh collateral damage against decisive action",
           ],
-          portfolioLabel: "CHARACTERS",
-          portfolios: [
-            "Captain America", "Winter Soldier", "Yelena Belova", "U.S. Agent",
-            "Red Guardian", "Okoye", "Taskmaster", "Sentry", "Hulk", "She-Hulk",
-            "Thor Odinson", "Captain Marvel", "Spider-Man", "Doctor Strange",
-            "Scarlet Witch", "Ant-Man", "Black Panther", "Wasp", "Daredevil", "Punisher",
-            "Wong", "Jean Grey", "Kate Bishop", "Rocket", "Nebula", "Starlord", "Hawkeye",
-            "Loki", "Erik Killmonger", "Nick Fury",
-          ],
         },
         {
           abbr: "AIPPM",
@@ -131,21 +122,6 @@ export const committees = {
             "Build cross-party consensus on contested reform",
             "Handle press scrutiny and public opinion",
             "Separate electoral posturing from policy",
-          ],
-          portfolioLabel: "PORTFOLIOS",
-          portfolios: [
-            "Amit Shah", "Nitin Gadkari", "Yogi Adityanath", "Nainar Nagendran",
-            "Rahul Gandhi", "Mallikarjun Kharge", "DK Shivakumar", "Akbaruddin Owaisi",
-            "Arwind Kejriwal", "Mamata Banerjee", "Narendra Modi", "Akhilesh Yadav",
-            "Lalu Prasad Yadav", "Dhananjay Munde", "Shashi Tharoor", "Sharad Pawar",
-            "M. K. Stalin", "Uddhav Thackeray", "Eknath Shinde", "Devendra Fadnavis",
-            "Sonia Gandhi", "Pawan Kalyan", "Revanth Reddy", "N. Biran Singh",
-            "Anurag Singh Thakur", "Godam Nagesh", "Pappu Yadav (Rajesh Ranjan)",
-            "Hemant Soren", "Tejashwi Yadav", "Rajeev Rai", "Dr. Vivek Joshi",
-            "N. R. Madhava Menon", "Pawan Kumar Sharma", "Sanjay Kumar",
-            "Bhanu Prakash Yeturu", "Vivek Yadav", "Sanjay Goel",
-            "Sandip Janardanpat Sagale", "Sanjeev Kumar Jha", "Dr. Sukhbir Singh Sandhu",
-            "Shri Gyanesh Kumar",
           ],
         },
         {
@@ -162,15 +138,6 @@ export const committees = {
             "Authorise peacekeeping and sanctions regimes",
             "Respond to crisis updates from the field",
           ],
-          portfolioLabel: "NATIONS",
-          portfolios: [
-            "Iraq", "Israel", "India", "Pakistan", "Ukraine", "Nigeria", "Russia", "USA",
-            "China", "France", "Afghanistan", "Iran", "Palestine", "UK", "Germany",
-            "Jordan", "Saudi Arabia", "Somalia", "Kenya", "Morocco", "Philippines",
-            "Indonesia", "Malaysia", "Bangladesh", "Australia", "Canada", "Sweden",
-            "Norway", "Italy", "Syria", "Turkey", "United Arab Emirates", "Lebanon",
-            "Qatar",
-          ],
         },
         {
           abbr: "WHO",
@@ -185,15 +152,6 @@ export const committees = {
             "Close the gap in vaccine and medicine access",
             "Fund health systems in developing states",
             "Balance sovereignty with global reporting duties",
-          ],
-          portfolioLabel: "NATIONS",
-          portfolios: [
-            "USA", "UK", "China", "Russia", "France", "Germany", "India", "Japan",
-            "South Korea", "Canada", "Australia", "Singapore", "Netherlands",
-            "Switzerland", "Sweden", "Italy", "Spain", "Belgium", "Israel", "Iran",
-            "Iraq", "Brazil", "South Africa", "United Arab Emirates", "Thailand",
-            "Vietnam", "Pakistan", "Norway", "Argentina", "Denmark", "Portugal",
-            "Greece", "Uzbekistan",
           ],
         },
         {
@@ -210,18 +168,6 @@ export const committees = {
             "Weigh growth against sustainability",
             "Translate policy into implementable schemes",
           ],
-          portfolioLabel: "PORTFOLIOS",
-          portfolios: [
-            "Narendra Modi", "Amit Shah", "Nirmala Sitharaman", "Shivraj Singh Chouhan",
-            "Piyush Goyal", "Ashwini Vaishnav", "Bhupendra Yadav", "Jitan Ram Manjhi",
-            "Devendra Fadnavis", "Yogi Adityanath", "M.K. Stalin", "Revanth Reddy",
-            "Mamata Banerjee", "Himanta Biswa Sarma", "Sanjay Seth",
-            "N. R. Narayan Murthy", "Radhika Gupta", "Tukaram Mundhe", "Rahul Gandhi",
-            "Sonia Gandhi", "Rajnath Singh", "Nitin Gadkari", "H. D. Kumaraswamy",
-            "Sharad Pawar", "Pawan Kalyan", "Shashi Tharoor", "Raghav Chadha",
-            "Omar Abdullah", "Prof. Ramesh Chand", "Dr. Ashok Gulati", "Gunwant Patil",
-            "Dr. Himanshu Pathak", "Subhash Palekar", "Dr. N. K. Singh", "P. Sainath",
-          ],
         },
         {
           abbr: "MAHABHARATA",
@@ -236,16 +182,6 @@ export const committees = {
             "Weigh kinship against justice",
             "Negotiate the terms of war and peace",
             "Defend a claim to the throne of Hastinapura",
-          ],
-          portfolioLabel: "CHARACTERS",
-          portfolios: [
-            "Yudhishthira", "Bhima", "Arjuna", "Nakula", "Sahadeva", "Krishna",
-            "Draupadi", "Subhadra", "Abhimanyu", "Dhrishtadyumna", "Shikhandi",
-            "Satyaki", "Virata", "Uttara", "Drupada", "Duryodhana", "Dushasana",
-            "Shakuni", "Karna", "Bhishma", "Dronacharya", "Kripacharya", "Ashwatthama",
-            "Vidura", "Dhritarashtra", "Gandhari", "Sanjaya", "Jayadratha", "Shalya",
-            "Kritavarma", "Balarama", "Rukmi", "Bhagadatta", "Shishupala", "Ekalavya",
-            "Kunti", "Ghatotkacha", "Yuyutsu", "Somadatta", "Bahlika",
           ],
         },
       ],
@@ -269,18 +205,6 @@ export const committees = {
             "Use questions, motions and adjournments",
             "Represent a constituency, not just a party",
           ],
-          portfolioLabel: "PORTFOLIOS",
-          portfolios: [
-            "Narendra Modi", "Dharmendra Pradhan", "Mansukh Mandaviya",
-            "Ashwini Vaishnaw", "Arjun Ram Meghwal", "Amit Shah", "Nirmala Sitharaman",
-            "Jitendra Singh", "Annapurna Devi", "Virendra Kumar", "Manohar Lal",
-            "Jyotiraditya Scindia", "Kiren Rijiju", "Piyush Goyal",
-            "Prof. Pradeep Kumar Joshi", "J. P. Nadda", "Sukanta Majumdar",
-            "Rahul Gandhi", "Jayant Chaudhary", "Mallikarjun Kharge",
-            "Priyanka Gandhi Vadra", "Shashi Tharoor", "K. C. Venugopal", "Sharad Pawar",
-            "Uddhav Thackeray", "Sanjay Raut", "M. K. Stalin", "Omar Abdullah",
-            "Arvind Kejriwal", "Bhagwat Mann", "Pinarayi Vijayan", "Prahlad Joshi",
-          ],
         },
         {
           abbr: "RAJYA SABHA",
@@ -295,18 +219,6 @@ export const committees = {
             "Represent state interests in the Union",
             "Use the rulings of the Chair and points of order",
             "Build cross-party support for amendments",
-          ],
-          portfolioLabel: "PORTFOLIOS",
-          portfolios: [
-            "Narendra Modi", "Amit Shah", "Rahul Gandhi", "Sonia Gandhi",
-            "Mamata Banerjee", "Nirmala Sitharaman", "Piyush Goyal", "Shashi Tharoor",
-            "Sharad Pawar", "Kapil Sibal", "Priyanka Gandhi Vadra", "Akhilesh Yadav",
-            "Abhishek Banerjee", "Tejashwi Yadav", "Uddhav Thackeray", "Eknath Shinde",
-            "Raj Thackeray", "Devendra Fadnavis", "Kris Gopalakrishnan",
-            "Mallikarjun Kharge", "Raghav Chadha", "Supriya Sule", "Nandan Nilekani",
-            "Arjun Ram Meghwal", "Arwind Kejriwal", "M. K. Stalin", "Omar Abdullah",
-            "Nitish Kumar", "Jitan Ram Manjhi", "Asauddin Owaisi", "P. Chidambaram",
-            "Yogi Adityanath", "Sachin Pilot",
           ],
         },
         {
@@ -323,15 +235,6 @@ export const committees = {
             "Balance member rivalries inside the bloc",
             "Position the bloc against G7 policy",
           ],
-          portfolioLabel: "NATIONS",
-          portfolios: [
-            "Brazil", "Russia", "India", "China", "South Africa", "Iran", "Israel",
-            "USA", "Palestine", "Yemen", "Iraq", "Lebanon", "Syria", "Qatar", "Oman",
-            "Jordan", "Egypt", "Pakistan", "Indonesia", "Bangladesh", "Malaysia",
-            "Ethiopia", "UK", "France", "Germany", "Italy", "Spain", "Canada",
-            "Australia", "Japan", "South Korea", "Kuwait", "Netherlands", "Greece",
-            "Uzbekistan", "Nigeria", "Kenya",
-          ],
         },
         {
           abbr: "INDIAN WAR CABINET",
@@ -346,16 +249,6 @@ export const committees = {
             "Balance military options against diplomatic cost",
             "Manage escalation and the nuclear threshold",
             "Control the public and press narrative",
-          ],
-          portfolioLabel: "PORTFOLIOS",
-          portfolios: [
-            "Lord Linlithgow", "Winston Churchill", "Jawaharlal Nehru", "Mahatma Gandhi",
-            "Maulana Abdul Kalam Azad", "Sardar Vallabhbhai Patel", "C. Rajagopalachari",
-            "Dr. Rajendra Prasad", "Govind Ballabh Pant", "Khan Abdul Ghaffar Khan",
-            "Asaf Ali", "Muhammad Ali Jinnah", "Sardar Abdur Rab Nishtar",
-            "Subhash Chandra Bose", "Sir R. F. Mudie", "Sir Muhammad Zafarullah",
-            "Nawab of Bahawalpur", "Maharaja of Mysore", "Maharaja of Baroda",
-            "Sir Malik Feroz Khan Noon", "Sir Muhammad Zafarullah Khan",
           ],
         },
         {
@@ -372,15 +265,6 @@ export const committees = {
             "Protect civil society and human rights defenders",
             "Mandate special rapporteurs and inquiries",
           ],
-          portfolioLabel: "NATIONS",
-          portfolios: [
-            "Iran", "Myanmar", "Venezuela", "Bangladesh", "Kenya", "Turkey", "China",
-            "Russia", "Egypt", "Sudan", "Ethiopia", "Nigeria", "Rwanda", "DR Congo",
-            "Morocco", "South Africa", "India", "Pakistan", "Nepal", "Sri Lanka",
-            "Indonesia", "Thailand", "Philippines", "Afghanistan", "Iraq", "Israel",
-            "USA", "UK", "France", "Germany", "Ukraine", "Armenia", "Mexico", "Colombia",
-            "Peru", "Argentina", "Brazil",
-          ],
         },
         {
           abbr: "C.C.C",
@@ -395,29 +279,6 @@ export const committees = {
             "Write directives with clear, workable mandates",
             "Track consequences across sessions",
             "Coordinate covert and public strategy",
-          ],
-          portfolioLabel: "PORTFOLIOS",
-          portfolios: [
-            "President of the United States", "Vice President of the United States",
-            "Secretary of State of the United States",
-            "Secretary of Defense of the United States",
-            "National Security Advisor of the United States",
-            "Director of National Intelligence of the United States",
-            "President of Russia", "Prime Minister of Russia",
-            "Foreign Minister of Russia", "Defense Minister of Russia",
-            "President of China", "Premier of China", "Foreign Minister of China",
-            "Defense Minister of China", "Prime Minister of India",
-            "Minister of External Affairs of India", "Defence Minister of India",
-            "National Security Advisor of India", "Prime Minister of the United Kingdom",
-            "Foreign Secretary of the United Kingdom", "President of France",
-            "Foreign Minister of France", "Chancellor of Germany",
-            "Foreign Minister of Germany", "President of Turkey",
-            "Prime Minister of Japan", "Prime Minister of Australia",
-            "Prime Minister of Canada", "Prime Minister of Israel", "President of Iran",
-            "Crown Prince / Prime Minister of Saudi Arabia", "Secretary-General of NATO",
-            "President of the European Commission",
-            "Secretary-General of the United Nations", "Director-General of the WHO",
-            "President of the World Bank", "Managing Director of the IMF",
           ],
         },
       ],

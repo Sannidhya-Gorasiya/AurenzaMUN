@@ -16,8 +16,8 @@ const COPIES = 4;
  * (`marquee-scroll`, a scroll-driven animation). Both run on the
  * compositor, so the ticker keeps full speed and never stutters however
  * busy the page is or whatever the display's refresh rate. Where
- * scroll-driven animations are unsupported it simply drifts. Static under
- * reduced motion. Decorative, so aria-hidden.
+ * scroll-driven animations are unsupported it simply drifts. Decorative,
+ * so aria-hidden.
  */
 export function Marquee({
   items,

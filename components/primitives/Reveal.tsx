@@ -11,7 +11,6 @@ type RevealTag = "div" | "section" | "li" | "span" | "article";
  * Scroll-reveal workhorse: fades + rises into view once. The movement is a
  * CSS transition (`.reveal` in globals.css) triggered by a shared observer,
  * so it runs on the compositor rather than in script every frame.
- * Reduced motion shows the final state immediately, in CSS.
  */
 export function Reveal({
   children,

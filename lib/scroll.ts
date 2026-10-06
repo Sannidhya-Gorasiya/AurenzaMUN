@@ -3,8 +3,8 @@ import type Lenis from "lenis";
 /**
  * The page's one Lenis instance, registered by <SmoothScroll />. Everything
  * that moves the page goes through here so anchor jumps, the dialog and the
- * mobile menu all agree on who owns scrolling. When Lenis is absent (reduced
- * motion, or before hydration) every helper falls back to native scrolling.
+ * mobile menu all agree on who owns scrolling. When Lenis is absent (touch
+ * screens, or before hydration) every helper falls back to native scrolling.
  */
 let lenis: Lenis | null = null;
 

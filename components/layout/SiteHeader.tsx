@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { hero, nav } from "@/lib/content";
 import { useScrollTimelines } from "@/lib/device";
 import { EASE } from "@/lib/motion";
@@ -34,7 +34,6 @@ function useActiveSection(ids: string[]) {
 const NAV_IDS = nav.map((n) => n.href.slice(1));
 
 export function SiteHeader() {
-  const reduce = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
@@ -117,7 +116,7 @@ export function SiteHeader() {
       <motion.header
         initial={false}
         animate={{ y: hidden && !open ? "-120%" : "0%" }}
-        transition={{ duration: reduce ? 0 : 0.5, ease: EASE }}
+        transition={{ duration: 0.5, ease: EASE }}
         className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5"
       >
         <div
@@ -208,7 +207,7 @@ export function SiteHeader() {
             ref={progressRef}
             aria-hidden
             className={`read-progress absolute inset-x-6 -bottom-px h-px origin-left bg-brand transition-opacity duration-500 will-change-transform ${
-              scrolled && !reduce ? "opacity-100" : "opacity-0"
+              scrolled ? "opacity-100" : "opacity-0"
             }`}
           />
         </div>
@@ -219,9 +218,9 @@ export function SiteHeader() {
         {open ? (
           <motion.div
             id="mobile-menu"
-            initial={reduce ? { opacity: 0 } : { clipPath: "inset(0 0 100% 0)" }}
-            animate={reduce ? { opacity: 1 } : { clipPath: "inset(0 0 0% 0)" }}
-            exit={reduce ? { opacity: 0 } : { clipPath: "inset(0 0 100% 0)" }}
+            initial={{ clipPath: "inset(0 0 100% 0)" }}
+            animate={{ clipPath: "inset(0 0 0% 0)" }}
+            exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.6, ease: EASE }}
             className="fixed inset-0 z-40 flex flex-col bg-background px-6 pb-10 pt-28 lg:hidden"
           >
@@ -230,7 +229,7 @@ export function SiteHeader() {
                 {nav.map((item, i) => (
                   <li key={item.href} className="overflow-hidden">
                     <motion.div
-                      initial={reduce ? false : { y: "100%" }}
+                      initial={{ y: "100%" }}
                       animate={{ y: "0%" }}
                       transition={{ duration: 0.6, ease: EASE, delay: 0.12 + i * 0.05 }}
                     >
@@ -250,7 +249,7 @@ export function SiteHeader() {
               </ul>
             </nav>
             <motion.div
-              initial={reduce ? false : { opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: EASE, delay: 0.45 }}
             >

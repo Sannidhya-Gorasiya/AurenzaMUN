@@ -2,7 +2,6 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "motion/react";
 import { isTouchPrimary, perfTier, prefersSaveData, useScrollTimelines } from "@/lib/device";
 
 /**
@@ -28,8 +27,9 @@ import { isTouchPrimary, perfTier, prefersSaveData, useScrollTimelines } from "@
  *      listener.
  *
  * Touch devices keep the plain light layer underneath until the strip is
- * ready, then the cubes fade in over it. Reduced motion bakes one nearly
- * built frame. Data Saver skips the download and keeps only the light.
+ * ready, then the cubes fade in over it. Reduced motion keeps the build:
+ * it is a slow crossfade, not movement. Data Saver skips the download and
+ * keeps only the light.
  */
 const SRC = "/voxel-cube-stack.mp4";
 
@@ -115,7 +115,7 @@ function whenReady(v: HTMLVideoElement) {
   });
 }
 
-/** Waits until the reader has not scrolled for a moment, so baking never competes with a flick. */
+/** Waits until the reader has not scrolled or touched for a moment, so baking never competes with a flick. */
 function whenStill(last: { t: number }) {
   return new Promise<void>((resolve) => {
     const check = () => (performance.now() - last.t > 180 ? resolve() : setTimeout(check, 120));
@@ -128,7 +128,6 @@ export function SiteBackdrop() {
   const stripB = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const lightRef = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
   const cssScroll = useScrollTimelines();
   const [strip, setStrip] = useState<Strip | null>(null);
 
@@ -136,10 +135,6 @@ export function SiteBackdrop() {
   useEffect(() => {
     const el = lightRef.current;
     if (!el || !isTouchPrimary()) return;
-    if (reduce) {
-      el.style.opacity = "0.85";
-      return;
-    }
     /* Where scroll-driven animations exist, globals.css brightens it on the
        compositor; otherwise it is set from a passive listener. */
     if (cssScroll) return;
@@ -160,7 +155,7 @@ export function SiteBackdrop() {
       ro.disconnect();
       window.removeEventListener("scroll", update);
     };
-  }, [reduce, cssScroll]);
+  }, [cssScroll]);
 
   /* -- bake the strip ------------------------------------------------------ */
   useEffect(() => {
@@ -174,7 +169,12 @@ export function SiteBackdrop() {
     const onScroll = () => {
       lastScroll.t = performance.now();
     };
+    /* A finger landing is the start of a scroll: each baked frame is a
+       few tens of milliseconds of main-thread work, which would land on
+       the scroll's first frames. */
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("touchstart", onScroll, { passive: true });
+    window.addEventListener("touchmove", onScroll, { passive: true });
 
     async function bake() {
       if (!v || !a || !b || !(await whenReady(v)) || cancelled || !v.duration) return;
@@ -187,9 +187,7 @@ export function SiteBackdrop() {
       const w = Math.round(Math.min(400, Math.max(64, shownWidth / SOFTNESS)));
       const h = Math.max(1, Math.round(w / aspect));
       const cell = h + PAD * 2;
-      const count = reduce
-        ? 1
-        : Math.max(2, Math.min(FRAMES[perfTier()], Math.floor(MAX_STRIP / cell)));
+      const count = Math.max(2, Math.min(FRAMES[perfTier()], Math.floor(MAX_STRIP / cell)));
 
       a.width = b.width = w;
       a.height = b.height = cell * count;
@@ -214,7 +212,7 @@ export function SiteBackdrop() {
       for (let i = 0; i < count; i++) {
         await whenStill(lastScroll);
         if (cancelled) return;
-        await seek(v, reduce ? v.duration * 0.8 : (i / Math.max(1, count - 1)) * span);
+        await seek(v, (i / Math.max(1, count - 1)) * span);
         if (cancelled) return;
 
         mctx.drawImage(v, 0, 0, mid.width, mid.height);
@@ -269,18 +267,20 @@ export function SiteBackdrop() {
     return () => {
       cancelled = true;
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("touchstart", onScroll);
+      window.removeEventListener("touchmove", onScroll);
       window.removeEventListener("load", start);
       if (hasIdle) window.cancelIdleCallback(idleId);
       else clearTimeout(idleId);
       v.pause();
     };
-  }, [reduce]);
+  }, []);
 
   /* -- script fallback for the frame stepping ------------------------------ */
   useEffect(() => {
     const a = stripA.current;
     const b = stripB.current;
-    if (!strip || !a || !b || reduce || cssScroll) return;
+    if (!strip || !a || !b || cssScroll) return;
     const gaps = strip.frames - 1;
     let maxScroll = 1;
     const measure = () => {
@@ -303,7 +303,7 @@ export function SiteBackdrop() {
       ro.disconnect();
       window.removeEventListener("scroll", update);
     };
-  }, [strip, reduce, cssScroll]);
+  }, [strip, cssScroll]);
 
   /* A window exactly one frame in size, covering the screen like
      object-fit: cover; each strip is N frames tall inside it, nudged up by
@@ -321,7 +321,7 @@ export function SiteBackdrop() {
         "--frames": strip.frames,
       } as CSSProperties)
     : undefined;
-  const animated = !!strip && !reduce;
+  const animated = !!strip;
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-50 overflow-hidden bg-background">

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useRef } from "react";
-import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { scrollToTarget } from "@/lib/scroll";
 import { useCoarsePointer } from "@/lib/pointer";
@@ -89,7 +89,6 @@ export function MagneticButton({
   /** The tiny "press & hold" note above the button, on touch screens. */
   hint?: boolean;
 }) {
-  const reduce = useReducedMotion();
   const coarse = useCoarsePointer();
   const ref = useRef<HTMLElement>(null);
   /* When the fill started: hover for a mouse, touchstart for a finger. */
@@ -102,7 +101,7 @@ export function MagneticButton({
 
   const v = variantClass[variant];
   const disabled = variant === "disabled";
-  const magnetic = !reduce && !disabled && !coarse;
+  const magnetic = !disabled && !coarse;
 
   function handleMove(e: React.PointerEvent) {
     if (!magnetic || !ref.current) return;
@@ -121,7 +120,7 @@ export function MagneticButton({
     if (href?.startsWith("#")) {
       onClick?.();
       requestAnimationFrame(() => {
-        if (scrollToTarget(href, !!reduce)) window.history.pushState(null, "", href);
+        if (scrollToTarget(href)) window.history.pushState(null, "", href);
       });
       return;
     }
@@ -250,7 +249,7 @@ export function MagneticButton({
     onTouchCancel: cancelTouch,
     /* A long press would otherwise open the link menu / preview. */
     onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
-    whileTap: reduce ? undefined : { scale: 0.96 },
+    whileTap: { scale: 0.96 },
     "aria-label": ariaLabel,
   };
 
