@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { isTouchPrimary, perfTier, prefersSaveData, useScrollTimelines } from "@/lib/device";
+import { afterShaderFrame } from "@/components/primitives/ShaderBackdrop";
 
 /**
  * Voxel cube stack (exported from Unicorn Studio's Amphorae template) as a
@@ -214,6 +215,12 @@ export function SiteBackdrop() {
         if (cancelled) return;
         await seek(v, (i / Math.max(1, count - 1)) * span);
         if (cancelled) return;
+        /* Each frame below is one unbroken stretch of main-thread work.
+           Started just after the hero's flow draws, it fits in the gap
+           before the flow's next frame rather than delaying it, which made
+           the flow stutter while the page sat at the top. */
+        await afterShaderFrame();
+        if (cancelled) return;
 
         mctx.drawImage(v, 0, 0, mid.width, mid.height);
         fctx.drawImage(mid, 0, 0, w, h);
@@ -240,8 +247,6 @@ export function SiteBackdrop() {
         actx.drawImage(frame, 0, y);
         actx.drawImage(frame, 0, 0, w, 1, 0, y - PAD, w, PAD);
         actx.drawImage(frame, 0, h - 1, w, 1, 0, y + h, w, PAD);
-
-        await new Promise((r) => setTimeout(r, 16));
       }
       if (cancelled) return;
 

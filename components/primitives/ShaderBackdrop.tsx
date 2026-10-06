@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { isTouchPrimary, perfTier } from "@/lib/device";
+import { perfTier } from "@/lib/device";
 
 /* Domain-warped fbm: slow gold light drifting through navy fog, leaning a
    little toward the pointer. Dark in the lower left, where the hero type
@@ -80,9 +80,10 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   return s;
 }
 
-/* What each device tier can afford. The flow drifts slowly enough that 30
-   or even 24 frames a second reads the same as 60, so it never draws faster
-   than that. Phones draw one octave fewer, the detail they have always
+/* What each device tier can afford. Every tier draws an even 30 frames a
+   second: the thin gold contour visibly stepped at the 24 and 20 phones
+   were once given, and the lower buffer density below already pays for
+   the difference. Phones draw one octave fewer, the detail they have always
    shown. `density` caps buffer pixels per CSS pixel: a phone's 3x screen at
    1.5 gets one buffer pixel per two screen pixels, finer than the eye can
    pick out once smoothed. `floor` is the least the adaptive step-down
@@ -95,9 +96,44 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
    (mid) is under half of that, 0.7 (low) about a quarter. */
 const QUALITY = {
   high: { octaves: 4, fps: 30, density: 2, floor: 1 },
-  mid: { octaves: 3, fps: 24, density: 1, floor: 0.6 },
-  low: { octaves: 3, fps: 20, density: 0.7, floor: 0.5 },
+  mid: { octaves: 3, fps: 30, density: 1, floor: 0.6 },
+  low: { octaves: 3, fps: 30, density: 0.7, floor: 0.5 },
 } as const;
+
+/* The flow's clock advances by the time between drawn frames, capped at
+   this many frame intervals. A late frame (the main thread busy, a tab
+   switch) then carries on from where the flow was instead of leaping
+   ahead, which read as a stutter. */
+const MAX_STEP_FRAMES = 1.5;
+
+/* Other main-thread work that cannot be split (the voxel backdrop's frame
+   bake) waits for `afterShaderFrame()`, which resolves just after the next
+   frame is drawn: the work then lands in the gap before the one after,
+   instead of on top of it. Resolves at once when nothing is drawing, and
+   never waits longer than WAIT_CAP_MS. */
+let waiters: (() => void)[] = [];
+let drawing = 0;
+const WAIT_CAP_MS = 120;
+
+export function afterShaderFrame() {
+  if (drawing === 0) return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, WAIT_CAP_MS);
+    waiters.push(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
+function releaseWaiters() {
+  if (waiters.length === 0) return;
+  const ready = waiters;
+  waiters = [];
+  /* A task, not a microtask: it runs after this frame has been handed to
+     the compositor. */
+  setTimeout(() => ready.forEach((fn) => fn()), 0);
+}
 
 /* Adaptive resolution: drawn frames are timed over windows of this length.
    If a window runs this much slower than the tier's rate, the GPU is not
@@ -113,12 +149,6 @@ const STEP = 0.8;
    scroll. */
 const MIN_VISIBLE = 0.3;
 
-/* Touch only: the flow holds its frame while the page is moving under a
-   finger, and resumes this long after the last scroll event. It drifts so
-   slowly that a held frame cannot be seen, and the GPU spends those frames
-   on the scroll instead. */
-const SCROLL_REST_MS = 220;
-
 /* Fixed-scale mode (`cssScale`) caps its buffer at this many pixels. */
 const CSS_SCALE_MAX_PIXELS = 320_000;
 
@@ -126,9 +156,9 @@ const CSS_SCALE_MAX_PIXELS = 320_000;
  * Hand-written WebGL "paint flow" behind the hero. Renders at device
  * resolution up to the tier's density cap, stepping down only if the GPU
  * cannot hold the frame rate; stops once mostly off screen or when the tab
- * is hidden, and on touch screens holds still while the page is being
- * scrolled. Reduced motion keeps it moving: it is a slow drift, not motion
- * tied to the scroll. No WebGL: the CSS gradient behind it shows.
+ * is hidden. It keeps drifting while the page scrolls: holding it still
+ * under a finger and resuming read as a stutter. No WebGL: the CSS
+ * gradient behind it shows.
  */
 export function ShaderBackdrop({
   className = "",
@@ -253,20 +283,36 @@ export function ShaderBackdrop({
 
     let raf = 0;
     let visible = true;
-    const start = performance.now();
+    const interval = 1000 / quality.fps;
+
+    /* Seconds of flow shown so far, and when the last frame was drawn (0
+       after a pause, so the flow resumes where it stopped). */
+    let clock = 12;
+    let drawnAt = 0;
 
     function draw(now: number) {
       resize();
       mouse.x += (mouse.tx - mouse.x) * 0.04;
       mouse.y += (mouse.ty - mouse.y) * 0.04;
-      gl!.uniform1f(uTime, (now - start) / 1000 + 12);
+      if (drawnAt) clock += Math.min(now - drawnAt, interval * MAX_STEP_FRAMES) / 1000;
+      drawnAt = now;
+      gl!.uniform1f(uTime, clock);
       gl!.uniform2f(uMouse, mouse.x, mouse.y);
       gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      releaseWaiters();
     }
 
     const running = () => visible && !document.hidden && !pausedRef.current;
 
-    const interval = 1000 / quality.fps;
+    /* Counted in the module-wide `drawing`, for afterShaderFrame(). */
+    let active = false;
+    function setActive(next: boolean) {
+      if (next === active) return;
+      active = next;
+      drawing += next ? 1 : -1;
+      if (!next && drawing === 0) releaseWaiters();
+    }
+
     let last = 0;
     let frames = 0;
     let windowStart = 0;
@@ -290,17 +336,8 @@ export function ShaderBackdrop({
       res = Math.max(Math.min(1, floor), res * STEP);
     }
 
-    const touch = isTouchPrimary();
-    let scrolledAt = -Infinity;
-    const onScroll = () => {
-      scrolledAt = performance.now();
-    };
-
     function loop(now: number) {
-      if (now - scrolledAt < SCROLL_REST_MS) {
-        /* A held frame is not a slow one: the timing window starts over. */
-        frames = 0;
-      } else if (now - last >= interval - 2) {
+      if (now - last >= interval - 2) {
         /* Skip frames to hold the tier's rate; a small tolerance keeps a
            60Hz display landing on every second frame for 30fps. */
         last = now;
@@ -308,13 +345,18 @@ export function ShaderBackdrop({
         measure(now);
       }
       if (running()) raf = requestAnimationFrame(loop);
+      else setActive(false);
     }
 
     function wake() {
       cancelAnimationFrame(raf);
-      /* A pause is not a slow frame: start a fresh timing window. */
+      /* A pause is not a slow frame: start a fresh timing window, and pick
+         the flow up where it stopped. */
       frames = 0;
-      if (running()) raf = requestAnimationFrame(loop);
+      drawnAt = 0;
+      const run = running();
+      setActive(run);
+      if (run) raf = requestAnimationFrame(loop);
     }
     wakeRef.current = wake;
 
@@ -333,7 +375,7 @@ export function ShaderBackdrop({
     if (cull) io.observe(canvas);
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("pointermove", onPointer, { passive: true });
-    if (touch) window.addEventListener("scroll", onScroll, { passive: true });
+    setActive(true);
     raf = requestAnimationFrame(loop);
 
     return () => {
@@ -342,7 +384,7 @@ export function ShaderBackdrop({
       sizer.disconnect();
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("pointermove", onPointer);
-      window.removeEventListener("scroll", onScroll);
+      setActive(false);
     };
   }, [vignette, gold, cssScale, cull]);
 
