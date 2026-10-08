@@ -394,6 +394,7 @@ export const secretariat = {
          No `panelRows`: the tier is announced, so the grid ends at the last
          name rather than reserving a slot nobody is going to fill. */
       members: [
+        { name: "Ditya Jain", role: "SUB-HEAD OF BRANDING & SUPPLIES", photo: "/team/ditya-jain.webp" },
         { name: "Risha Mehta", role: "SUB-HEAD OF CREATIVE & FINE ARTS", photo: "/team/risha-mehta.webp" },
         { name: "Shreya Sheth", role: "SUB-HEAD OF DIGITAL MEDIA", photo: "/team/shreya-sheth.webp" },
         { name: "Zeal Joshi", role: "SUB-HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/zeal-joshi.webp" },
