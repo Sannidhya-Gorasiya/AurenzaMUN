@@ -170,7 +170,7 @@ export function CommitteeModal({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.98 }}
         transition={{ duration: 0.4, ease: EASE }}
-        className="glass relative z-10 flex max-h-[88vh] w-full max-w-3xl bg-[#0e1016] flex-col overflow-hidden rounded-3xl shadow-2xl shadow-black/60 focus-visible:outline-2"
+        className="glass relative z-10 flex max-h-[88vh] w-full max-w-3xl bg-[#0e1016] flex-col overflow-hidden rounded-surface shadow-2xl shadow-black/60 focus-visible:outline-2"
       >
         {/* header */}
         <div className="shrink-0 px-6 pt-6 sm:px-8 sm:pt-7">
@@ -178,7 +178,7 @@ export function CommitteeModal({
             type="button"
             onClick={close}
             aria-label="Close committee details"
-            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-muted transition-all duration-200 hover:bg-surface-strong hover:text-foreground active:scale-90 active:bg-surface-strong active:text-brand focus-visible:outline-2"
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-surface text-muted transition-all duration-200 hover:bg-surface-strong hover:text-foreground active:scale-90 active:bg-surface-strong active:text-brand focus-visible:outline-2"
           >
             <svg
               viewBox="0 0 24 24"
@@ -195,7 +195,7 @@ export function CommitteeModal({
 
           <div className="flex items-center gap-4 pr-10 sm:gap-5">
             <div
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-border-glass bg-gradient-to-br font-display text-sm font-bold tracking-tight sm:h-16 sm:w-16 sm:text-base ${accentEmblem[accent]}`}
+              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-surface border border-border-glass bg-gradient-to-br font-display text-sm font-bold tracking-tight sm:h-16 sm:w-16 sm:text-base ${accentEmblem[accent]}`}
               aria-hidden
             >
               {monogram(committee.abbr)}
@@ -254,7 +254,7 @@ export function CommitteeModal({
                       yet; the description and focus areas carry the tab on
                       their own. */}
                   {committee.agenda ? (
-                    <div className="mt-6 rounded-2xl border border-border-glass bg-surface p-5">
+                    <div className="mt-6 rounded-surface border border-border-glass bg-surface p-5">
                       <p
                         className={`font-mono text-[0.65rem] uppercase tracking-[0.2em] ${accentLabel[accent]}`}
                       >
@@ -271,10 +271,10 @@ export function CommitteeModal({
                   {/* One line, so it reads as a row rather than a third
                       stacked heading between the agenda and the focus list. */}
                   {committee.chair ? (
-                    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-border-glass bg-surface px-5 py-3.5">
+                    <div className="mt-6 flex items-center gap-3 rounded-surface border border-border-glass bg-surface px-5 py-3.5">
                       {/* The same white pill the card wears, so the row reads
                           as the panel's label carried through the tap. */}
-                      <p className="rounded-full bg-foreground/10 px-2.5 py-0.5 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-foreground">
+                      <p className="rounded-md bg-foreground/10 px-2.5 py-0.5 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-foreground">
                         Chair
                       </p>
                       <p className="font-display text-sm font-semibold leading-snug tracking-tight">
@@ -307,7 +307,7 @@ export function CommitteeModal({
                     {portfolios.map((name, i) => (
                       <li
                         key={name}
-                        className="flex items-center gap-2.5 rounded-xl border border-border-glass bg-surface px-3 py-2"
+                        className="flex items-center gap-2.5 rounded-surface border border-border-glass bg-surface px-3 py-2"
                       >
                         <span
                           className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md font-mono text-[0.6rem] font-semibold ${accentBadge[accent]}`}

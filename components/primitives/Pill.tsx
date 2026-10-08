@@ -31,7 +31,7 @@ export function Pill({
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[0.68rem] uppercase leading-tight tracking-[0.12em] sm:tracking-[0.18em] ${variants[variant]} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-mono text-[0.68rem] uppercase leading-tight tracking-[0.12em] sm:tracking-[0.18em] ${variants[variant]} ${className}`}
     >
       {live ? (
         <span aria-hidden className="relative flex h-1.5 w-1.5">

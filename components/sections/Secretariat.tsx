@@ -61,7 +61,7 @@ function Panel({ member, index }: { member?: TeamMember; index: number }) {
         {member ? (
           <>
             {/* Initials stand in for anyone whose portrait has not landed. */}
-            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border-glass bg-gradient-to-br from-blue/25 via-transparent to-brand/20 sm:h-28 sm:w-28 sm:rounded-2xl">
+            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-surface border border-border-glass bg-gradient-to-br from-blue/25 via-transparent to-brand/20 sm:h-28 sm:w-28">
               {member.photo ? (
                 <Image
                   src={member.photo}
@@ -92,7 +92,7 @@ function Panel({ member, index }: { member?: TeamMember; index: number }) {
         ) : (
           <div
             aria-hidden
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-dashed border-border-glass bg-surface sm:h-28 sm:w-28 sm:rounded-2xl"
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-surface border border-dashed border-border-glass bg-surface sm:h-28 sm:w-28"
           >
             <span className="h-2 w-2 rounded-full bg-brand/40" />
           </div>

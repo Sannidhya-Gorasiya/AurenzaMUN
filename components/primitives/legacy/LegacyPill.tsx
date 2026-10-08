@@ -49,7 +49,7 @@ export function LegacyPill({
   dot?: boolean;
   className?: string;
 }) {
-  const base = "inline-flex items-center gap-2 rounded-full font-mono uppercase";
+  const base = "inline-flex items-center gap-2 rounded-lg font-mono uppercase";
 
   /* The type step lives here rather than in a caller's `className`, because
      two competing `text-*`/`tracking-*` utilities resolve by stylesheet

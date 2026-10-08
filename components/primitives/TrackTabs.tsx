@@ -83,7 +83,7 @@ export function TrackTabs({
     <div
       role="tablist"
       aria-label="Committee tracks"
-      className="glass grid w-full grid-cols-2 gap-1.5 rounded-2xl p-1.5 sm:inline-flex sm:w-auto sm:flex-wrap sm:rounded-full"
+      className="glass grid w-full grid-cols-2 gap-1.5 rounded-[0.875rem] p-1.5 sm:inline-flex sm:w-auto sm:flex-wrap"
     >
       {tabs.map((tab, i) => {
         const active = tab.id === value;
@@ -106,7 +106,7 @@ export function TrackTabs({
             /* Padding lives entirely in the branch: listing px-3 and px-8
                together would leave which one wins up to Tailwind's emit
                order rather than to this component. */
-            className={`relative rounded-full py-2.5 text-center text-xs font-medium uppercase leading-tight tracking-[0.12em] transition-colors duration-300 ${
+            className={`relative rounded-lg py-2.5 text-center text-xs font-medium uppercase leading-tight tracking-[0.12em] transition-colors duration-300 ${
               odd
                 ? "col-span-2 justify-self-center px-8 sm:col-span-1 sm:justify-self-auto sm:px-6"
                 : "px-4 sm:px-6"
@@ -115,7 +115,7 @@ export function TrackTabs({
             {active && (
               <motion.span
                 layoutId={`${idBase}-active-pill`}
-                className={`absolute inset-0 rounded-full border ${accentPill[tab.accent]}`}
+                className={`absolute inset-0 rounded-lg border ${accentPill[tab.accent]}`}
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />
             )}

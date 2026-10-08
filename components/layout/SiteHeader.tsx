@@ -120,7 +120,7 @@ export function SiteHeader() {
         className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5"
       >
         <div
-          className={`relative mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full pl-2 pr-2 transition-[background-color,border-color,box-shadow] duration-500 sm:h-16 sm:pl-3 ${
+          className={`relative mx-auto flex h-14 max-w-6xl items-center justify-between rounded-surface pl-2 pr-2 transition-[background-color,border-color,box-shadow] duration-500 sm:h-16 sm:pl-4 sm:pr-4 ${
             scrolled || open
               ? /* A dense fill, not a live blur: over the hero the blur had
                    to re-blur the animating shader under the capsule on
@@ -155,14 +155,14 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   ariaCurrent={isActive}
-                  className={`relative rounded-full px-3.5 py-2 font-mono text-[0.68rem] uppercase tracking-[0.16em] transition-colors duration-300 xl:px-4 ${
+                  className={`relative rounded-sm px-3.5 py-2 font-mono text-[0.68rem] uppercase tracking-[0.16em] transition-colors duration-300 xl:px-4 ${
                     isActive ? "text-foreground" : "text-muted hover:text-foreground"
                   }`}
                 >
                   {isActive ? (
                     <motion.span
                       layoutId="nav-active"
-                      className="absolute inset-0 -z-10 rounded-full bg-foreground/[0.08]"
+                      className="absolute inset-0 -z-10 rounded-sm bg-foreground/[0.08]"
                       transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   ) : null}
@@ -187,7 +187,7 @@ export function SiteHeader() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               onClick={() => setOpen((v) => !v)}
-              className="relative flex h-11 w-11 items-center justify-center rounded-full border border-hairline-strong transition-transform active:scale-90 lg:hidden"
+              className="relative flex h-11 w-11 items-center justify-center rounded-surface border border-hairline-strong transition-transform active:scale-90 lg:hidden"
             >
               <span
                 className={`absolute h-px w-4 bg-foreground transition-transform duration-500 ease-out-expo ${

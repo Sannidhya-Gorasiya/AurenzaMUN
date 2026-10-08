@@ -6,8 +6,10 @@
    One theme (dark), one accent (gold). Navy only ever appears as
    atmosphere inside the hero scene, never as a UI colour.
 
-   Shape rule: interactive controls (buttons, tabs, chips) are full
-   pills; every surface (cards, image frames, dialog) uses --radius.
+   Shape rule: buttons, tabs and every surface (cards, panels, image
+   frames, dialog) use --radius, as the stat and countdown panels do.
+   Tabs and label chips are a softer rounded rectangle; nothing is a
+   full pill.
 
    Z-index scale: header 50 · grain 60 · mobile menu 70 · dialog 120.
    ============================================================ */

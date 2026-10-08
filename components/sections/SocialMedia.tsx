@@ -66,10 +66,10 @@ export function SocialMedia() {
                     href={p.href}
                     {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     aria-label={p.external ? `AurenzaMUN on ${p.name}` : `Email AurenzaMUN at ${p.handle}`}
-                    className="absolute inset-0 rounded-3xl focus-visible:outline-2"
+                    className="absolute inset-0 rounded-surface focus-visible:outline-2"
                   />
                   <div
-                    className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-border-glass bg-gradient-to-br from-blue/25 via-transparent to-brand/20 ${iconText[accent]}`}
+                    className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-surface border border-border-glass bg-gradient-to-br from-blue/25 via-transparent to-brand/20 ${iconText[accent]}`}
                   >
                     {icons[p.name]}
                   </div>

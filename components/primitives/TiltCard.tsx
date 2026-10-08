@@ -94,7 +94,7 @@ export function TiltCard({
           ? { rotateX: srx, rotateY: sry, transformPerspective: 900 }
           : undefined
       }
-      className={`glass rounded-3xl shadow-lg shadow-black/30 transition-[border-color,box-shadow] duration-300 ${accentHover[accent]} ${
+      className={`glass rounded-surface shadow-lg shadow-black/30 transition-[border-color,box-shadow] duration-300 ${accentHover[accent]} ${
         pressed ? accentPress[accent] : ""
       } ${className}`}
     >

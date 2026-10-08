@@ -74,7 +74,7 @@ const CommitteeCard = memo(function CommitteeCard({
               ? `${committee.abbr} — view agenda`
               : `${committee.abbr} — view details`
           }
-          className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-2"
+          className="absolute inset-0 z-10 rounded-surface focus-visible:outline-2"
         />
 
         {/* No chip on a committee whose agenda is not out yet: promising an
@@ -83,7 +83,7 @@ const CommitteeCard = memo(function CommitteeCard({
             affordance. */}
         {committee.agenda ? (
           <span
-            className={`inline-block self-start rounded-full px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.2em] ${accentTag[accent]}`}
+            className={`inline-block self-start rounded-lg px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.2em] ${accentTag[accent]}`}
             aria-hidden
           >
             Click for agendas
@@ -106,7 +106,7 @@ const CommitteeCard = memo(function CommitteeCard({
           <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
             {/* White pill, so the label reads as a tag on the name rather than
                 a second line of prose, and leaves the gold to the accents. */}
-            <span className="rounded-full bg-foreground/10 px-2.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-foreground">
+            <span className="rounded-md bg-foreground/10 px-2.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-foreground">
               Chair
             </span>
             {/* Display face, as everywhere the site prints a person's name. */}
@@ -263,7 +263,7 @@ export function Committees() {
                 ))}
               </div>
             ) : (
-              <div className="glass flex flex-col items-center justify-center rounded-3xl border-dashed px-8 py-20 text-center">
+              <div className="glass flex flex-col items-center justify-center rounded-surface border-dashed px-8 py-20 text-center">
                 <span className={`h-2.5 w-2.5 rounded-full ${accentDot[track.accent]}`} />
                 <p className="mt-5 max-w-md text-sm leading-relaxed text-muted">
                   {track.emptyState}
