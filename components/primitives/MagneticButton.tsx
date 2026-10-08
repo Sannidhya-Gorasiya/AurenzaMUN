@@ -84,12 +84,12 @@ export function HoldHintBetween({ className = "" }: { className?: string }) {
       aria-hidden
       className={`pointer-events-none invisible flex h-8 items-center justify-center gap-1.5 text-muted/80 [@media(hover:none)]:visible ${className}`}
     >
-      <svg {...svg} className="h-6 w-7 self-start">
+      <svg {...svg} className="h-6 w-7 self-start text-foreground">
         <path d="M26 15C14 16 6 12 6 4" strokeDasharray="0.5 3" />
         <path d="M2.5 7.5 6 3l3.5 4.5" />
       </svg>
       <span className={HINT_TEXT}>press &amp; hold</span>
-      <svg {...svg} className="h-6 w-7 self-end">
+      <svg {...svg} className="h-6 w-7 self-end text-foreground">
         <path d="M2 9c12-1 20 3 20 11" strokeDasharray="0.5 3" />
         <path d="M18.5 16.5 22 21l3.5-4.5" />
       </svg>

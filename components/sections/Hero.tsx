@@ -6,7 +6,7 @@ import { hero } from "@/lib/content";
 import { useScrollTimelines } from "@/lib/device";
 import { progressBetween } from "@/lib/motion";
 import { AnimatedHeading } from "@/components/primitives/AnimatedHeading";
-import { HoldHint, MagneticButton } from "@/components/primitives/MagneticButton";
+import { HoldHint, HoldHintBetween, MagneticButton } from "@/components/primitives/MagneticButton";
 import { Pill } from "@/components/primitives/Pill";
 import { LegacyPill } from "@/components/primitives/legacy/LegacyPill";
 import { ShaderBackdrop } from "@/components/primitives/ShaderBackdrop";
@@ -110,11 +110,13 @@ export function Hero() {
             aria-label={`${hero.badges[1]}, open in Google Maps`}
             className="inline-block shrink-0 transition-all duration-200 hover:opacity-80 active:scale-95 active:opacity-70"
           >
-            {/* The original filled venue chip, restored as it was. */}
+            {/* The original filled venue chip, sized to match the date
+                chip beside it (LegacyPill's own type step is a little
+                smaller and sets no line height). */}
             <LegacyPill
               accent="blue"
               dot
-              className="cursor-pointer whitespace-nowrap max-sm:gap-1! max-sm:px-2.5! max-sm:text-[0.56rem]! max-sm:tracking-[0.06em]!"
+              className="cursor-pointer whitespace-nowrap px-3.5! text-[0.68rem]! leading-tight! tracking-[0.12em]! sm:tracking-[0.18em]! max-sm:gap-1! max-sm:px-2.5! max-sm:text-[0.56rem]! max-sm:tracking-[0.06em]!"
             >
               {hero.badges[1]}
             </LegacyPill>
@@ -145,16 +147,18 @@ export function Hero() {
                 {hero.lede}
               </p>
               <div
-                className="intro-rise mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+                className="intro-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap sm:gap-3"
                 style={fade(1.05)}
               >
                 {/* One "press & hold" for the pair, not one over each: centred
-                    between them when stacked on a phone, above the row on a
-                    touch tablet. */}
+                    between them with arrows to both when stacked on a phone,
+                    above the row on a touch tablet. The arrowed row is the
+                    gap between the stacked buttons. */}
                 <MagneticButton href="#register" variant="primary" arrow hint={false}>
                   {hero.ctaPrimary}
                 </MagneticButton>
-                <HoldHint className="text-center sm:order-first sm:-mb-1.5 sm:basis-full sm:pl-4 sm:text-left" />
+                <HoldHintBetween className="sm:hidden" />
+                <HoldHint className="max-sm:hidden! sm:order-first sm:-mb-1.5 sm:basis-full sm:pl-4" />
                 <MagneticButton href="#committees" variant="secondary" hint={false}>
                   {hero.ctaSecondary}
                 </MagneticButton>
