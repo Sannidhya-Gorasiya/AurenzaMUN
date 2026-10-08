@@ -377,7 +377,6 @@ export const secretariat = {
       members: [
         { name: "Sannidhya Gorasiya", role: "HEAD OF TECHNICALS & DEVELOPMENT", photo: "/team/sannidhya-gorasiya.webp" },
         { name: "Agastya Maurya", role: "HEAD OF MARKETING & SPONSORS", photo: "/team/agastya-maurya.webp" },
-        { name: "Bhoomi Bharadiya", role: "HEAD OF CREATIVE & FINE ARTS", photo: "/team/bhoomi-bharadiya.webp" },
         { name: "Neev Mehta", role: "HEAD OF PHOTOGRAPHY", photo: "/team/neev-mehta.webp" },
         { name: "Ariana Chauhan", role: "HEAD OF HOSPITALITY", photo: "/team/ariana-chauhan.webp" },
         { name: "Aarav Jain", role: "HEAD OF SECURITY", photo: "/team/aarav-jain.webp" },
@@ -395,7 +394,6 @@ export const secretariat = {
          name rather than reserving a slot nobody is going to fill. */
       members: [
         { name: "Ditya Jain", role: "SUB-HEAD OF BRANDING & SUPPLIES", photo: "/team/ditya-jain.webp" },
-        { name: "Risha Mehta", role: "SUB-HEAD OF CREATIVE & FINE ARTS", photo: "/team/risha-mehta.webp" },
         { name: "Shreya Sheth", role: "SUB-HEAD OF DIGITAL MEDIA", photo: "/team/shreya-sheth.webp" },
         { name: "Zeal Joshi", role: "SUB-HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/zeal-joshi.webp" },
         { name: "Kiara Parmar", role: "SUB-HEAD OF HOSPITALITY", photo: "/team/kiara-parmar.webp" },
