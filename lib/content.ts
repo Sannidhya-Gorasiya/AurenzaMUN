@@ -22,6 +22,12 @@ export const nav = [
 
 export const hero = {
   badges: ["10 & 11 OCTOBER 2026", "SVIS KANDIVALI, MUMBAI"],
+  /** The small notes arrowed at the date and venue chips. */
+  badgeNotes: ["Save the date", "Reach faster"],
+  /** Google Calendar "add event" link behind the date chip: both days,
+      all-day (the end date is exclusive), at the venue. */
+  calendarUrl:
+    "https://calendar.google.com/calendar/render?action=TEMPLATE&text=AurenzaMUN%202026&dates=20261010%2F20261012&location=Swami%20Vivekanand%20International%20School%2C%20Kandivali%20West%2C%20Mumbai&details=Model%20United%20Nations%20conference%20at%20SVIS%20Kandivali.%20Opening%20gavel%3A%2010%20October%2C%207%3A00%20AM%20IST.",
   venueMapUrl:
     "https://www.google.com/maps/place/Swami+Vivekanand+International+School,+Kandivali,+MG+Cross+Road+No.+1,+Kandivali,+Gokul+Nagari,+Kandivali+West,+Mumbai,+Maharashtra+400067/@19.2096745,72.8446805,17z/data=!3m1!4b1!4m6!3m5!1s0x3be7b6d769be7cbb:0xe6a9f85dba3a9881!8m2!3d19.2096745!4d72.8472554!16s%2Fg%2F11bw417cc_?entry=ttu&g_ep=EgoyMDI2MDgxNi4wIKXMDSoASAFQAw%3D%3D",
   headline: ["AURENZA", "MUN"] as [string, string],

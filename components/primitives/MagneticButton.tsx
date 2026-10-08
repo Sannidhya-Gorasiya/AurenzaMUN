@@ -50,7 +50,8 @@ const variantClass: Record<Variant, { base: string; fill: string; onFill: string
  * fill on hover and never needs telling). Buttons carry their own; a stacked
  * pair passes `hint={false}` to both and sets one of these between them.
  */
-const HINT_TEXT = "font-mono text-[0.5rem] normal-case leading-none tracking-[0.12em] text-muted/80";
+/** The hint type: tiny mono caps. Shared by every hint and chip note. */
+export const HINT_TEXT = "font-mono text-[0.5rem] uppercase leading-none tracking-[0.12em] text-muted/80";
 
 export function HoldHint({ className = "" }: { className?: string }) {
   return (

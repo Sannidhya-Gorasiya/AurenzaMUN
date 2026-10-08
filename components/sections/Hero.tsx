@@ -6,12 +6,41 @@ import { hero } from "@/lib/content";
 import { useScrollTimelines } from "@/lib/device";
 import { progressBetween } from "@/lib/motion";
 import { AnimatedHeading } from "@/components/primitives/AnimatedHeading";
-import { HoldHint, HoldHintBetween, MagneticButton } from "@/components/primitives/MagneticButton";
+import { HINT_TEXT, HoldHint, HoldHintBetween, MagneticButton } from "@/components/primitives/MagneticButton";
 import { Pill } from "@/components/primitives/Pill";
 import { LegacyPill } from "@/components/primitives/legacy/LegacyPill";
 import { ShaderBackdrop } from "@/components/primitives/ShaderBackdrop";
 
 const sceneFade = progressBetween(0.2, 0.95);
+
+/**
+ * A note hung under a hero chip: a ghost-white dotted arrow curving up to
+ * the chip and a line in the hint type at its tail. Absolutely placed, so it
+ * takes no room in the row. Dropped below 360px, where the chips wrap onto
+ * two lines and the first note would sit on the second chip.
+ */
+function ChipNote({ children }: { children: string }) {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute left-3 top-full mt-1 flex items-start gap-1 whitespace-nowrap max-[359px]:hidden"
+    >
+      <svg
+        viewBox="0 0 20 18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.25}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-[18px] w-5 shrink-0 text-foreground"
+      >
+        <path d="M18 15C10 15 5 11 5 4" strokeDasharray="0.5 3" />
+        <path d="M1.5 7.5 5 3l3.5 4.5" />
+      </svg>
+      <span className={`${HINT_TEXT} mt-[11px]`}>{children}</span>
+    </span>
+  );
+}
 
 /**
  * Script fallback for the parallax, mounted only where CSS scroll-driven
@@ -96,19 +125,28 @@ export function Hero() {
           className="intro-rise flex flex-nowrap items-center gap-1.5 max-[359px]:flex-wrap sm:flex-wrap sm:gap-3"
           style={fade(0.2)}
         >
-          <Pill
-            variant="plate"
-            dot
-            className="shrink-0 whitespace-nowrap max-sm:gap-1! max-sm:px-2.5! max-sm:text-[0.56rem]! max-sm:tracking-[0.06em]!"
+          <a
+            href={hero.calendarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${hero.badges[0]}, add to Google Calendar`}
+            className="relative inline-block shrink-0 transition-all duration-200 hover:opacity-80 active:scale-95 active:opacity-70"
           >
-            {hero.badges[0]}
-          </Pill>
+            <Pill
+              variant="plate"
+              dot
+              className="cursor-pointer whitespace-nowrap max-sm:gap-1! max-sm:px-2.5! max-sm:text-[0.56rem]! max-sm:tracking-[0.06em]!"
+            >
+              {hero.badges[0]}
+            </Pill>
+            <ChipNote>{hero.badgeNotes[0]}</ChipNote>
+          </a>
           <a
             href={hero.venueMapUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${hero.badges[1]}, open in Google Maps`}
-            className="inline-block shrink-0 transition-all duration-200 hover:opacity-80 active:scale-95 active:opacity-70"
+            className="relative inline-block shrink-0 transition-all duration-200 hover:opacity-80 active:scale-95 active:opacity-70"
           >
             {/* The original filled venue chip, sized to match the date
                 chip beside it (LegacyPill's own type step is a little
@@ -120,6 +158,7 @@ export function Hero() {
             >
               {hero.badges[1]}
             </LegacyPill>
+            <ChipNote>{hero.badgeNotes[1]}</ChipNote>
           </a>
         </div>
 
