@@ -6,7 +6,7 @@ import { hero } from "@/lib/content";
 import { useScrollTimelines } from "@/lib/device";
 import { progressBetween } from "@/lib/motion";
 import { AnimatedHeading } from "@/components/primitives/AnimatedHeading";
-import { MagneticButton } from "@/components/primitives/MagneticButton";
+import { HoldHint, MagneticButton } from "@/components/primitives/MagneticButton";
 import { Pill } from "@/components/primitives/Pill";
 import { LegacyPill } from "@/components/primitives/legacy/LegacyPill";
 import { ShaderBackdrop } from "@/components/primitives/ShaderBackdrop";
@@ -145,13 +145,17 @@ export function Hero() {
                 {hero.lede}
               </p>
               <div
-                className="intro-rise mt-8 flex flex-col gap-3 sm:flex-row"
+                className="intro-rise mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
                 style={fade(1.05)}
               >
-                <MagneticButton href="#register" variant="primary" arrow>
+                {/* One "press & hold" for the pair, not one over each: centred
+                    between them when stacked on a phone, above the row on a
+                    touch tablet. */}
+                <MagneticButton href="#register" variant="primary" arrow hint={false}>
                   {hero.ctaPrimary}
                 </MagneticButton>
-                <MagneticButton href="#committees" variant="secondary">
+                <HoldHint className="text-center sm:order-first sm:-mb-1.5 sm:basis-full sm:pl-4 sm:text-left" />
+                <MagneticButton href="#committees" variant="secondary" hint={false}>
                   {hero.ctaSecondary}
                 </MagneticButton>
               </div>

@@ -46,6 +46,22 @@ const variantClass: Record<Variant, { base: string; fill: string; onFill: string
 };
 
 /**
+ * The "press & hold" note, shown on touch screens only (a mouse gets the
+ * fill on hover and never needs telling). Buttons carry their own; a stacked
+ * pair passes `hint={false}` to both and sets one of these between them.
+ */
+export function HoldHint({ className = "" }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`pointer-events-none hidden font-mono text-[0.5rem] normal-case leading-none tracking-[0.12em] text-muted/80 [@media(hover:none)]:block ${className}`}
+    >
+      press &amp; hold
+    </span>
+  );
+}
+
+/**
  * Pill CTA. With a fine pointer it leans toward the cursor and springs back
  * on leave; on every input a fill wipes up behind the label on hover/press.
  * Touch gets no magnetic pull, which would slide the button out from under
@@ -198,15 +214,7 @@ export function MagneticButton({
           />
         </span>
       ) : null}
-      {hint && !disabled ? (
-        /* Touch only: a mouse gets the fill on hover and never needs telling. */
-        <span
-          aria-hidden
-          className="pointer-events-none absolute bottom-full left-4 mb-[3px] hidden font-mono text-[0.5rem] normal-case leading-none tracking-[0.12em] text-muted/80 [@media(hover:none)]:block"
-        >
-          press &amp; hold
-        </span>
-      ) : null}
+      {hint && !disabled ? <HoldHint className="absolute bottom-full left-4 mb-[3px]" /> : null}
       <span
         className={`relative inline-flex items-center gap-2 transition-colors duration-300 ${v.onFill}`}
       >
