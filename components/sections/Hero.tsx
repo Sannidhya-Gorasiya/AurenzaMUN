@@ -14,16 +14,20 @@ import { ShaderBackdrop } from "@/components/primitives/ShaderBackdrop";
 const sceneFade = progressBetween(0.2, 0.95);
 
 /**
- * A note hung under a hero chip: a ghost-white dotted arrow curving up to
- * the chip and a line in the hint type at its tail. Absolutely placed, so it
- * takes no room in the row. Dropped below 360px, where the chips wrap onto
- * two lines and the first note would sit on the second chip.
+ * A note hung off a hero chip: a ghost-white dotted arrow curving to the
+ * chip and a line in the hint type at its tail, below the chip or above it.
+ * Absolutely placed, so it takes no room in the row; a step larger from sm,
+ * where the 8px phone size was too small to notice. Dropped below 360px,
+ * where the chips wrap onto two lines and the notes would sit on them.
  */
-function ChipNote({ children }: { children: string }) {
+function ChipNote({ children, side = "below" }: { children: string; side?: "below" | "above" }) {
+  const above = side === "above";
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute left-3 top-full mt-1 flex items-start gap-1 whitespace-nowrap max-[359px]:hidden"
+      className={`pointer-events-none absolute left-3 flex gap-1 whitespace-nowrap max-[359px]:hidden ${
+        above ? "bottom-full mb-1 items-end" : "top-full mt-1 items-start"
+      }`}
     >
       <svg
         viewBox="0 0 20 18"
@@ -32,12 +36,17 @@ function ChipNote({ children }: { children: string }) {
         strokeWidth={1.25}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-[18px] w-5 shrink-0 text-foreground"
+        /* One drawing, mirrored top to bottom to point down at the chip. */
+        className={`h-[18px] w-5 shrink-0 text-foreground sm:h-[22px] sm:w-6 ${above ? "-scale-y-100" : ""}`}
       >
         <path d="M18 15C10 15 5 11 5 4" strokeDasharray="0.5 3" />
         <path d="M1.5 7.5 5 3l3.5 4.5" />
       </svg>
-      <span className={`${HINT_TEXT} mt-[11px]`}>{children}</span>
+      <span
+        className={`${HINT_TEXT} sm:text-[0.62rem] ${above ? "mb-[11px] sm:mb-[13px]" : "mt-[11px] sm:mt-[13px]"}`}
+      >
+        {children}
+      </span>
     </span>
   );
 }
@@ -158,7 +167,7 @@ export function Hero() {
             >
               {hero.badges[1]}
             </LegacyPill>
-            <ChipNote>{hero.badgeNotes[1]}</ChipNote>
+            <ChipNote side="above">{hero.badgeNotes[1]}</ChipNote>
           </a>
         </div>
 
