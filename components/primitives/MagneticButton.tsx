@@ -50,14 +50,50 @@ const variantClass: Record<Variant, { base: string; fill: string; onFill: string
  * fill on hover and never needs telling). Buttons carry their own; a stacked
  * pair passes `hint={false}` to both and sets one of these between them.
  */
+const HINT_TEXT = "font-mono text-[0.5rem] normal-case leading-none tracking-[0.12em] text-muted/80";
+
 export function HoldHint({ className = "" }: { className?: string }) {
   return (
     <span
       aria-hidden
-      className={`pointer-events-none hidden font-mono text-[0.5rem] normal-case leading-none tracking-[0.12em] text-muted/80 [@media(hover:none)]:block ${className}`}
+      className={`pointer-events-none hidden ${HINT_TEXT} [@media(hover:none)]:block ${className}`}
     >
       press &amp; hold
     </span>
+  );
+}
+
+/**
+ * One hint for two full-width buttons stacked with nothing between them:
+ * "press & hold" centred in the gap, with a dotted arrow curving up to the
+ * button above and another curving down to the one below. The row always
+ * keeps its height, so the pair sits the same distance apart with a mouse,
+ * where the hint itself is hidden.
+ */
+export function HoldHintBetween({ className = "" }: { className?: string }) {
+  const svg = {
+    viewBox: "0 0 28 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.25,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+  return (
+    <div
+      aria-hidden
+      className={`pointer-events-none invisible flex h-8 items-center justify-center gap-1.5 text-muted/80 [@media(hover:none)]:visible ${className}`}
+    >
+      <svg {...svg} className="h-6 w-7 self-start">
+        <path d="M26 15C14 16 6 12 6 4" strokeDasharray="0.5 3" />
+        <path d="M2.5 7.5 6 3l3.5 4.5" />
+      </svg>
+      <span className={HINT_TEXT}>press &amp; hold</span>
+      <svg {...svg} className="h-6 w-7 self-end">
+        <path d="M2 9c12-1 20 3 20 11" strokeDasharray="0.5 3" />
+        <path d="M18.5 16.5 22 21l3.5-4.5" />
+      </svg>
+    </div>
   );
 }
 

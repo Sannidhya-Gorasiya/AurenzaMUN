@@ -4,7 +4,7 @@ import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
 import { useScroll } from "motion/react";
 import { registration } from "@/lib/content";
 import { useScrollTimelines } from "@/lib/device";
-import { MagneticButton } from "@/components/primitives/MagneticButton";
+import { HoldHintBetween, MagneticButton } from "@/components/primitives/MagneticButton";
 import { Pill } from "@/components/primitives/Pill";
 import { Reveal } from "@/components/primitives/Reveal";
 import { SectionIntro } from "@/components/primitives/SectionIntro";
@@ -191,31 +191,31 @@ function RegistrationMobile() {
             {registration.card.body}
           </p>
 
+          {/* The two forms stacked with one shared "press & hold" between
+              them; the delegation note captions its button from below. */}
           <div className="mt-6">
             <MagneticButton
               href={registration.card.href}
               variant="primary"
+              hint={false}
               className="w-full"
               ariaLabel={`${registration.card.button}, opens in a new tab`}
             >
               {registration.card.button}
             </MagneticButton>
-          </div>
-
-          <div className="mt-5 border-t border-hairline pt-5">
-            <p className="text-xs leading-relaxed text-muted">
+            <HoldHintBetween />
+            <MagneticButton
+              href={registration.card.delegation.href}
+              variant="outline"
+              hint={false}
+              className="w-full"
+              ariaLabel={`${registration.card.delegation.button}, opens in a new tab`}
+            >
+              {registration.card.delegation.button}
+            </MagneticButton>
+            <p className="mt-3 text-center text-xs leading-relaxed text-muted">
               {registration.card.delegation.note}
             </p>
-            <div className="mt-3">
-              <MagneticButton
-                href={registration.card.delegation.href}
-                variant="outline"
-                className="w-full"
-                ariaLabel={`${registration.card.delegation.button}, opens in a new tab`}
-              >
-                {registration.card.delegation.button}
-              </MagneticButton>
-            </div>
           </div>
 
           <dl className="mt-8 flex flex-col gap-4 border-t border-hairline pt-6">
@@ -286,30 +286,32 @@ function RegistrationWide() {
                     {registration.card.body}
                   </p>
 
-                  <MagneticButton
-                    href={registration.card.href}
-                    variant="primary"
-                    arrow
-                    strength={0.15}
-                    className="mt-7 w-full"
-                    ariaLabel={`${registration.card.button}, opens in a new tab`}
-                  >
-                    {registration.card.button}
-                  </MagneticButton>
-
-                  <div className="mt-6 border-t border-hairline pt-6">
-                    <p className="text-sm leading-relaxed text-muted">
-                      {registration.card.delegation.note}
-                    </p>
+                  <div className="mt-7">
+                    <MagneticButton
+                      href={registration.card.href}
+                      variant="primary"
+                      arrow
+                      strength={0.15}
+                      hint={false}
+                      className="w-full"
+                      ariaLabel={`${registration.card.button}, opens in a new tab`}
+                    >
+                      {registration.card.button}
+                    </MagneticButton>
+                    <HoldHintBetween />
                     <MagneticButton
                       href={registration.card.delegation.href}
                       variant="outline"
                       strength={0.15}
-                      className="mt-4 w-full"
+                      hint={false}
+                      className="w-full"
                       ariaLabel={`${registration.card.delegation.button}, opens in a new tab`}
                     >
                       {registration.card.delegation.button}
                     </MagneticButton>
+                    <p className="mt-3 text-center text-sm leading-relaxed text-muted">
+                      {registration.card.delegation.note}
+                    </p>
                   </div>
 
                   <dl className="mt-7 grid grid-cols-1 gap-4 border-t border-hairline pt-6 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
