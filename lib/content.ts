@@ -122,7 +122,6 @@ export const committees = {
             "Agenda A: Discussion and deliberation on the constitutional validity of anti-conversion laws in India.\n\nAgenda B: Discussion upon Article 19(1)(a), freedom of speech and expression, with special emphasis on press freedom in India.",
           description:
             "The All India Political Parties Meet puts leaders from across the political spectrum in one room. Delegates argue as sitting politicians, defending a party line in public while searching for a consensus the country can actually live with.",
-          chair: "Atharva Devadkar",
           focus: [
             "Argue from a real party position",
             "Build cross-party consensus on contested reform",
@@ -389,7 +388,6 @@ export const secretariat = {
         { name: "Diya Joshi", role: "HEAD OF BRANDING & SUPPLIES", photo: "/team/diya-joshi.webp" },
         { name: "Daveena Hada", role: "HEAD OF DIGITAL MEDIA", photo: "/team/daveena-hada.webp" },
         { name: "Tiksha Pant", role: "HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/tiksha-pant.webp" },
-        { name: "Atharva Devadkar", role: "HEAD OF DELEGATE AFFAIRS", photo: "/team/atharva-devedkar.webp" },
       ],
     },
     {
