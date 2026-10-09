@@ -388,6 +388,7 @@ export const secretariat = {
         { name: "Diya Joshi", role: "HEAD OF BRANDING & SUPPLIES", photo: "/team/diya-joshi.webp" },
         { name: "Daveena Hada", role: "HEAD OF DIGITAL MEDIA", photo: "/team/daveena-hada.webp" },
         { name: "Tiksha Pant", role: "HEAD OF GRAPHICAL DEVELOPMENT", photo: "/team/tiksha-pant.webp" },
+        { name: "Mahi Salla", role: "HEAD OF CREATIVE & FINE ARTS", photo: "/team/mahi-salla.webp" },
       ],
     },
     {
